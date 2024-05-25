@@ -49,9 +49,11 @@ class PaymentController extends Controller
         $user = Auth::user();
         
         $rib = $user->rib;
+        $fullname= $user->$name;
 
         $qrData = [
             'recipient_rib' => $rib,
+            'fullname'=>$fullname,
         ];
 
         $qrCode = new QrCode(json_encode($qrData));
