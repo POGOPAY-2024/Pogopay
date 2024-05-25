@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0b5f7e9946f6efce4897d635970b880d",
+    "content-hash": "1619539697435564913fa1e21e7040d5",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2725,6 +2725,80 @@
                 }
             ],
             "time": "2024-03-23T07:42:40+00:00"
+        },
+        {
+            "name": "marcin-orlowski/laravel-api-response-builder",
+            "version": "9.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MarcinOrlowski/laravel-api-response-builder.git",
+                "reference": "fd13279bcf0f6ccef52d1d40e7b6741677958f24"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MarcinOrlowski/laravel-api-response-builder/zipball/fd13279bcf0f6ccef52d1d40e7b6741677958f24",
+                "reference": "fd13279bcf0f6ccef52d1d40e7b6741677958f24",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^9.0",
+                "php": "^8.0|^8.1"
+            },
+            "require-dev": {
+                "marcin-orlowski/php-lockpick": "^1.0",
+                "marcin-orlowski/phpunit-extra-asserts": "^5.1.0",
+                "nunomaduro/larastan": "^2.0",
+                "orchestra/testbench": "^7.0",
+                "phpunit/php-code-coverage": "^9.2",
+                "phpunit/phpunit": "^9.6.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MarcinOrlowski\\ResponseBuilder\\ResponseBuilderServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MarcinOrlowski\\ResponseBuilder\\": "src/",
+                    "MarcinOrlowski\\ResponseBuilder\\Tests\\": "tests/phpunit",
+                    "MarcinOrlowski\\ResponseBuilder\\Tests\\Traits\\": "tests/Traits/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marcin Orlowski",
+                    "homepage": "https://MarcinOrlowski.com/"
+                }
+            ],
+            "description": "Helps building nice, normalized and easy to consume Laravel REST API.",
+            "homepage": "https://github.com/MarcinOrlowski/laravel-api-response-builder",
+            "keywords": [
+                "android",
+                "api",
+                "builder",
+                "helper",
+                "ios",
+                "json",
+                "laravel",
+                "laravel9",
+                "mobile",
+                "php",
+                "php8",
+                "php81",
+                "rest"
+            ],
+            "support": {
+                "issues": "https://github.com/MarcinOrlowski/laravel-api-response-builder/issues",
+                "source": "https://github.com/MarcinOrlowski/laravel-api-response-builder/"
+            },
+            "time": "2023-02-18T19:39:39+00:00"
         },
         {
             "name": "monolog/monolog",
