@@ -84,13 +84,7 @@ const Signup = () => {
                     onChangeText={text => setRIB(text)}
                     // accessibilityLabel="Enter your name"
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Address"
-                    autoCapitalize="none"
-                    onChangeText={text => setAddress(text)}
-                    accessibilityLabel="Enter your address"
-                />
+              
                 <View style={styles.passwordInputContainer}>
                     <TextInput
                         style={[styles.input, styles.passwordInput]}

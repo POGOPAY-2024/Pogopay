@@ -9,11 +9,8 @@ const CreditCard = ({ cardNumber, cardHolder, expirationDate, balance }) => {
           <View style={styles.infoRow}>
               {/* <Icon name="money" size={24} color="white" /> */}
               <Text style={styles.balanceText}>credit card: default</Text>
-              {/* <Text style={styles.defaultText}>Your Balance</Text> */}
           </View>
-          {/* <Text style={styles.cardText}>**** **** **** {cardNumber.slice(-4)}</Text> */}
-          {/* <Text style={styles.cardText}>{cardHolder}</Text> */}
-          {/* <Text style={styles.defaultText}>Valid Thru: {expirationDate}</Text> */}
+       
       </View>
   );
 };
@@ -24,6 +21,9 @@ const HomeScreen = () => {
         cardNumber: '1234567812345678',
         cardHolder: 'John Doe',
         expirationDate: '12/24'
+    };
+    const handleForgotInPress = () => {
+        navigation.navigate('CodeQr');
     };
 
     return (
@@ -36,11 +36,11 @@ const HomeScreen = () => {
             />
 
             {/* Logo */}
-            <Image
+            {/* <Image
                 source={require('../assets/pogo.png')}
                 style={styles.logo}
                 resizeMode="contain"
-            />
+            /> */}
 
             {/* Button Container */}
             <View style={styles.buttonContainer}>
@@ -48,9 +48,8 @@ const HomeScreen = () => {
                 {/* QR Code Button */}
                 <TouchableOpacity
                     style={[styles.button, styles.primaryButton]}
-                    onPress={() => {
-                        navigation.navigate('CODE QR'); // Navigate to QRScreen
-                    }}
+                    onPress={handleForgotInPress}
+                    
                 >
                     <Text style={styles.buttonText}>QR Code</Text>
                 </TouchableOpacity>
@@ -88,7 +87,7 @@ const styles = StyleSheet.create({
         marginBottom: height * 0.025, // Responsive margin bottom
         alignItems: 'center',
         height: height * 0.1, // Responsive height
-        top: -height * 0.25, // Responsive top positioning
+        top: -height * 0.33, // Responsive top positioning
     },
     cardText: {
         color: 'white',
@@ -106,7 +105,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row', // Arrange buttons in a row
         justifyContent: 'space-between', // Distribute space between buttons
         width: '100%',
-        marginTop: height * 0.0375, // Responsive margin top
+        top: -height * 0.125, // Responsive top positioning
         height: height * 0.09, // Responsive height
     },
     button: {

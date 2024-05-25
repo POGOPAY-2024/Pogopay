@@ -1,27 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Alert,editingField } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Alert, TextInput, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; 
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 
-
 const Profile = () => {
   const navigation = useNavigation();
 
-  
   const [username, setUsername] = useState('KHAOULA');
-
-   
+  const [email, setEmail] = useState('khaoula@example.com');
+  const [password, setPassword] = useState('******');
+  const [phone, setPhone] = useState('123-456-7890');
+  const [editingField, setEditingField] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
   const handleEdit = (field) => {
-    console.log(`Editing ${field}`);
+    setEditingField(field);
   };
-  const handleAbout = (field) => {
-    navigation.navigate('About Us');
+
+  const handleInputChange = (field, value) => {
+    switch (field) {
+      case 'username':
+        setUsername(value);
+        break;
+      case 'email':
+        setEmail(value);
+        break;
+      case 'password':
+        setPassword(value);
+        break;
+      case 'phone':
+        setPhone(value);
+        break;
+      default:
+        break;
+    }
   };
+
   const handleLogout = () => {
     navigation.navigate('Login');
-  
   };
 
   const selectImage = async () => {
@@ -44,79 +61,96 @@ const Profile = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={selectImage}>
-      <Image style={styles.image} source={require('../assets/user1.png')} />
+        <Image style={styles.image} source={profileImage ? profileImage : require('../assets/user1.png')} />
         <FontAwesome name="camera" size={24} color="white" style={styles.cameraIcon} />
-
       </TouchableOpacity>
-      <Text style={styles.username}>khaoula</Text>
       <View style={styles.infoContainer}>
         <View style={styles.info}>
           <FontAwesome name="user" size={20} color="#374151" style={styles.icon} />
-          {editingField === 'Name' ? (
+          {editingField === 'username' ? (
             <TextInput
               style={styles.input}
               value={username}
-              onChangeText={handleInputChange}
-              onBlur={() => setEditingField('')}
+              onChangeText={(value) => handleInputChange('username', value)}
+              onBlur={() => setEditingField(null)}
             />
           ) : (
             <>
-              <Text>{username}</Text>
-              <TouchableOpacity onPress={() => handleEdit('Name')}>
-            <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon4} />
-          </TouchableOpacity>
+              <Text style={styles.text}>{username}</Text>
+              <TouchableOpacity onPress={() => handleEdit('username')}>
+                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
+              </TouchableOpacity>
             </>
           )}
-          
         </View>
         <View style={styles.info}>
           <FontAwesome name="envelope" size={20} color="#374151" style={styles.icon} />
-          <Text style={styles.text}>Email</Text>
-          <TouchableOpacity onPress={() => handleEdit('Email')}>
-            <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon1} />
-          </TouchableOpacity>
+          {editingField === 'email' ? (
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={(value) => handleInputChange('email', value)}
+              onBlur={() => setEditingField(null)}
+            />
+          ) : (
+            <>
+              <Text style={styles.text}>{email}</Text>
+              <TouchableOpacity onPress={() => handleEdit('email')}>
+                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
         <View style={styles.info}>
           <FontAwesome name="lock" size={20} color="#374151" style={styles.icon} />
-          <Text style={styles.text}>Password</Text>
-          <TouchableOpacity onPress={() => handleEdit('Password')}>
-            <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon2} />
-          </TouchableOpacity>
+          {editingField === 'password' ? (
+            <TextInput
+              style={styles.input}
+              value={password}
+              secureTextEntry
+              onChangeText={(value) => handleInputChange('password', value)}
+              onBlur={() => setEditingField(null)}
+            />
+          ) : (
+            <>
+              <Text style={styles.text}>{password}</Text>
+              <TouchableOpacity onPress={() => handleEdit('password')}>
+                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
         <View style={styles.info}>
           <FontAwesome name="phone" size={20} color="#374151" style={styles.icon} />
-          <Text style={styles.text}>Phone number</Text>
-          <TouchableOpacity onPress={() => handleEdit('Phone')}>
-            <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon3} />
-          </TouchableOpacity>
+          {editingField === 'phone' ? (
+            <TextInput
+              style={styles.input}
+              value={phone}
+              keyboardType="phone-pad"
+              onChangeText={(value) => handleInputChange('phone', value)}
+              onBlur={() => setEditingField(null)}
+            />
+          ) : (
+            <>
+              <Text style={styles.text}>{phone}</Text>
+              <TouchableOpacity onPress={() => handleEdit('phone')}>
+                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
         <View style={styles.info}>
-          <FontAwesome name="map-marker" size={20} color="#374151" style={styles.icon} />
-          <Text style={styles.text}>Adresse</Text>
-          <TouchableOpacity onPress={() => handleEdit('Phone')}>
-            <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon5} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.info}>
-          <TouchableOpacity onPress={handleAbout}>
-            <FontAwesome name="info" size={20} color="#374151" style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleAbout}>
-            <Text style={styles.text}>About Us</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.info}>
-          <TouchableOpacity onPress={handleLogout }>
+          <TouchableOpacity onPress={handleLogout}>
             <FontAwesome name="sign-out" size={20} color="#374151" style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleLogout }>
+          <TouchableOpacity onPress={handleLogout}>
             <Text style={styles.text}>Log Out</Text>
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -127,19 +161,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#EFF2F4',
-    padding: width * 0.05,
+    paddingHorizontal: width * 0.05,
+    paddingBottom: height * 0.05,
   },
   image: {
     width: width * 0.3,
     height: width * 0.3,
     borderRadius: (width * 0.3) / 2,
     marginBottom: height * 0.03,
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: height * 0.02,
-    color: '#042552',
   },
   infoContainer: {
     width: '100%',
@@ -156,24 +185,20 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: width * 0.02,
   },
-  editIcon1: {
-    marginLeft: '83%', 
-  },
-  editIcon2: {
-    marginLeft: '78%',
-  },
-  editIcon3: {
-    marginLeft: '70%', 
-  },
-  editIcon4: {
-    marginLeft: '80%', 
-  },
-  editIcon5: {
-    marginLeft: '81%', 
+  editIcon: {
+    marginLeft: 'auto',
   },
   text: {
     fontSize: 16,
     color: '#374151',
+    flex: 1,
+  },
+  input: {
+    flex: 1,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 8,
   },
   cameraIcon: {
     position: 'absolute',

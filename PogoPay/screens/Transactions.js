@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 const TransactionsHistory = () => {
@@ -22,7 +22,7 @@ const TransactionsHistory = () => {
         data={transactions}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <FontAwesome name="exchange" size={24} color="#FB847C" style={styles.icon} />
+            <FontAwesome name="exchange" size={Dimensions.get('window').width * 0.05} color="#FB847C" style={styles.icon} />
             <View style={styles.transactionDetails}>
               <Text style={styles.transactionType}>{item.type}</Text>
               <Text style={styles.transactionDate}>{item.date}</Text>
@@ -39,13 +39,8 @@ const TransactionsHistory = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor:'#EFF2F4'
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    padding: Dimensions.get('window').width * 0.05,
+    backgroundColor: '#EFF2F4',
   },
   card: {
     flexDirection: 'row',
@@ -53,27 +48,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     elevation: 3,
-    padding: 15,
-    marginBottom: 15,
+    padding: Dimensions.get('window').width * 0.04,
+    marginBottom: Dimensions.get('window').width * 0.04,
   },
   icon: {
-    marginRight: 10,
+    marginRight: Dimensions.get('window').width * 0.03,
   },
   transactionDetails: {
     flex: 1,
-    marginRight: 10,
+    marginRight: Dimensions.get('window').width * 0.03,
   },
   transactionType: {
-    fontSize: 16,
+    fontSize: Dimensions.get('window').width * 0.04,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: Dimensions.get('window').width * 0.012,
   },
   transactionDate: {
-    fontSize: 14,
+    fontSize: Dimensions.get('window').width * 0.035,
     color: '#757575',
   },
   transactionAmount: {
-    fontSize: 16,
+    fontSize: Dimensions.get('window').width * 0.04,
     fontWeight: 'bold',
     color: '#03D3B9',
   },

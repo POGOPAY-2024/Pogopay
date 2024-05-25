@@ -24,6 +24,7 @@ import CodeQr from './screens/CodeQr';
 import Reset from './screens/Reset';
 import Transfer from './screens/Transfer';
 import Logout from './screens/Logout';
+import AddCard from './screens/AddCard';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -45,6 +46,10 @@ function AuthStack() {
       <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
       <Stack.Screen name="Forgot" component={Forgot} options={{ headerShown: false }} />
       <Stack.Screen name="home" component={MainStack} options={{ headerShown: false }} />
+      <Stack.Screen name="AddCard" component={AddCard} options={{ headerShown: false }} />
+      <Stack.Screen name="CodeQr" component={CodeQr} options={{ headerShown: true }} />
+
+
 
     </Stack.Navigator>
   );

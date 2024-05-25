@@ -3,36 +3,27 @@ import { View, StyleSheet, Image, Dimensions, TouchableOpacity, Text } from 'rea
 import QRCode from 'react-native-qrcode-svg';
 
 const CodeQr = () => {
-  // Transfer details (replace with actual data)
-  const transferDetails = {
-    recipient: 'John Doe',
-    amount: '$100',
-    transactionId: '123456789',
+  // User details (replace with actual data)
+  const userDetails = {
+    username: 'khaoula', // Replace with actual username
+    rib: '123456789012345678901234', // Replace with actual RIB
   };
 
   // Generate QR code data
-  const qrData = JSON.stringify(transferDetails);
+  const qrData = JSON.stringify(userDetails);
 
-  const handleScan = () => {
-    // Add your logic for scanning here
-    // This function will be called when the button is pressed
-    console.log('Scan button pressed');
-  };
+ 
 
   return (
     <View style={styles.container}>
-      {/* <Image style={styles.image} source={require('../assets/user1.png')} />
-      <Text style={styles.username}>khaoula</Text> */}
+     
 
       <View style={styles.card}>
         <QRCode value={qrData} size={200} style={styles.codeqr} />
       </View>
-      <Text style={styles.codeText}>Scan this QR code to receive money</Text>
+      <Text style={styles.codeText}>Scan this QR code</Text>
 
-
-      <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
-        <Text style={styles.scanButtonText}>Scan QR Code</Text>
-      </TouchableOpacity>
+      
     </View>
   );
 };
@@ -44,7 +35,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 30, // Adjust this value as needed
+    paddingTop: 30,
   },
   username: {
     fontSize: 20,
@@ -64,25 +55,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    top: -90,
+    marginBottom: height * 0.05,
   },
   image: {
     width: width * 0.3,
     height: width * 0.3,
     borderRadius: (width * 0.3) / 2,
     marginBottom: height * 0.06,
-    top: -110,
   },
   codeqr: {
-    // Add any additional styles for the QR code
+   
   },
   codeText: {
     marginTop: 10,
     fontSize: 16,
-    top:-50
+    textAlign: 'center',
   },
   scanButton: {
-    marginTop: 20, // Adjust this value as needed
+    marginTop: 20, 
     backgroundColor: '#03D3B9',
     paddingVertical: 10,
     paddingHorizontal: 20,
