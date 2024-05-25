@@ -28,7 +28,6 @@ const Login = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Log In</Text>
-            <Text style={styles.subtitle}>Set a name for your profile, here's the password</Text>
             <Image style={styles.image} source={require('../assets/login.jpg')} />
             <View style={styles.inputContainer}>
                 <TextInput
@@ -78,7 +77,6 @@ const Login = () => {
         </View>
     );
 }
-
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -86,86 +84,87 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         flex: 1,
         alignItems: 'center',
-        padding: 20,
+        padding: width * 0.05,
     },
     text: {
         fontWeight: 'bold',
-        fontSize: 24,
+        fontSize: width * 0.06, // Responsive font size
         color: '#011A51',
-        marginTop: 40,
+        marginTop: height * 0.05,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: width * 0.035, // Responsive font size
         color: '#727E96',
-        marginTop: 20,
+        marginTop: height * 0.02,
     },
     image: {
         width: '60%',
-        height: 180,
-        marginTop: 40,
+        height: height * 0.25, // Responsive height
+        marginTop: height * 0.05,
+        resizeMode: 'contain', // Ensure image aspect ratio is maintained
     },
     inputContainer: {
         width: '100%',
-        marginBottom: 30,
+        marginBottom: height * 0.05,
     },
     input: {
         width: '100%',
-        height: 50,
+        height: height * 0.06, // Responsive height
         borderWidth: 1,
         borderColor: '#042552',
         borderRadius: 10,
-        paddingLeft: 20,
-        marginBottom: 40,
-        top:36
+        paddingLeft: width * 0.05, // Responsive padding
+        marginBottom: height * 0.025, // Responsive margin
     },
     togglePassword: {
         textAlign: 'right',
         color: '#03D3B9',
     },
-   
-   
     forgotPasswordLinkContainer: {
         alignSelf: 'flex-end',
     },
     forgotPasswordLink: {
         color: '#FB847C',
         textDecorationLine: 'underline',
-        fontSize: 14,
+        fontSize: width * 0.035, // Responsive font size
+        top: '-68%', // Center vertically within the input field
+
     },
     button: {
         width: '100%',
-        height: 50,
+        height: height * 0.07, // Responsive height
         backgroundColor: '#03D3B9',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10,
-        marginTop: 20,
+        marginTop: height * 0.025, // Responsive margin
     },
     buttonText: {
         color: 'white',
-        fontSize: 18,
+        fontSize: width * 0.045, // Responsive font size
         fontWeight: 'bold',
     },
     bottomText: {
-        marginTop: 20,
-        fontSize: 14,
+        marginTop: height * 0.025, // Responsive margin
+        fontSize: width * 0.035, // Responsive font size
         color: '#727E96',
     },
     signupLink: {
         color: '#FB847C',
         textDecorationLine: 'underline',
+
     },
     passwordInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     passwordInput: {
-        paddingRight: 40, 
+        paddingRight: width * 0.1, // Responsive padding
     },
     icon: {
         position: 'absolute',
-        right: 19,
-        top: '68%',
+        right: width * 0.05, // Responsive positioning
+        top: '38%', // Center vertically within the input field
         transform: [{ translateY: -10 }],
     },
 });

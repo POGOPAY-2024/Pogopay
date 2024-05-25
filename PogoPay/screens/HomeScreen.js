@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, Text,Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -70,49 +70,50 @@ const HomeScreen = () => {
     );
 };
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 40, // Add padding top to avoid overlap with status bar
+        paddingHorizontal: width * 0.05, // Responsive padding
+        paddingTop: height * 0.05, // Responsive padding top
     },
     cardContainer: {
         width: '100%',
         backgroundColor: '#011A51',
         borderRadius: 10,
-        padding: 20,
-        marginBottom: 20,
+        padding: width * 0.05, // Responsive padding
+        marginBottom: height * 0.025, // Responsive margin bottom
         alignItems: 'center',
-        height: '10%',
-        top: -210
+        height: height * 0.1, // Responsive height
+        top: -height * 0.25, // Responsive top positioning
     },
     cardText: {
         color: 'white',
-        fontSize: 16,
-        marginBottom: 5,
+        fontSize: width * 0.04, // Responsive font size
+        marginBottom: height * 0.005, // Responsive margin bottom
     },
     logo: {
-        width: 180,
-        height: 200,
-        marginBottom: -10,
-        marginTop: -70,
-        top: -100
-
+        width: width * 0.45, // Responsive width
+        height: height * 0.25, // Responsive height
+        marginBottom: -height * 0.0125, // Responsive margin bottom
+        marginTop: -height * 0.0875, // Responsive margin top
+        top: -height * 0.125, // Responsive top positioning
     },
     buttonContainer: {
         flexDirection: 'row', // Arrange buttons in a row
         justifyContent: 'space-between', // Distribute space between buttons
         width: '100%',
-        marginTop: 30,
-        height:'9%'
-          },
+        marginTop: height * 0.0375, // Responsive margin top
+        height: height * 0.09, // Responsive height
+    },
     button: {
         flex: 1, // Each button takes up equal space
-        paddingVertical: 15,
+        paddingVertical: height * 0.01875, // Responsive padding vertical
         borderRadius: 10,
-        marginHorizontal: 5, // Space between buttons
+        marginHorizontal: width * 0.0125, // Responsive margin horizontal
     },
     primaryButton: {
         backgroundColor: '#03D3B9',
@@ -121,18 +122,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#011A51',
     },
     buttonText: {
-        fontSize: 18,
+        fontSize: width * 0.045, // Responsive font size
         fontWeight: 'bold',
         textAlign: 'center',
         color: 'white',
-        top:6
-
-
+        top: height * 0.0075, // Responsive top positioning
     },
-    balanceText:{
-      color:'white',
-      fontSize:16
-    }
+    balanceText: {
+        color: 'white',
+        fontSize: width * 0.04, // Responsive font size
+    },
 });
 
 export default HomeScreen;

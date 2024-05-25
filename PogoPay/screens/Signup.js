@@ -8,6 +8,7 @@ const Signup = () => {
     const navigation = useNavigation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [RIB, setRIB] = useState('');
     const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
     const [hidePassword, setHidePassword] = useState(true);
@@ -29,6 +30,7 @@ const Signup = () => {
             name,
             phoneNumber: formattedValue,
             email,
+            RIB,
             address,
             password
         });
@@ -43,7 +45,6 @@ const Signup = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Sign up</Text>
-            <Text style={styles.subText}>Set a name for your profile, here's the password</Text>
             <Image style={styles.image} source={require('../assets/sign up.png')} />
             <View style={styles.inputContainer}>
                 <TextInput
@@ -75,6 +76,13 @@ const Signup = () => {
                         }
                     }}
                     accessibilityLabel="Enter your email"
+                />
+                 <TextInput
+                    style={styles.input}
+                    placeholder="RIB"
+                    autoCapitalize="words"
+                    onChangeText={text => setRIB(text)}
+                    // accessibilityLabel="Enter your name"
                 />
                 <TextInput
                     style={styles.input}
@@ -110,89 +118,97 @@ const Signup = () => {
         </View>
     );
 }
-
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     container: {
         backgroundColor: '#FFFFFF',
         flex: 1,
         alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 20,
+        paddingTop: height * 0.1,
+        paddingHorizontal: width * 0.05,
     },
     text: {
         fontWeight: "bold",
-        fontSize: 24,
+        fontSize: width * 0.06,
         color: "#011A51",
-        marginBottom: 10,
+        marginBottom: height * 0.02,
     },
     subText: {
-        fontSize: 16,
+        fontSize: width * 0.04,
         color: '#727E96',
-        marginBottom: 20,
+        marginBottom: height * 0.02,
         textAlign: 'center',
     },
     image: {
         width: '60%',
-        height: 180,
-        marginBottom: 40,
+        height: height * 0.25,
+        marginBottom: height * 0.05,
+        resizeMode: 'contain',
+        marginTop: height * -0.03,
+
     },
     inputContainer: {
         width: '100%',
-        marginBottom: 30,
+        marginBottom: height * -0.001,
+        marginTop: height * -0.05,
+
     },
     input: {
         width: '100%',
-        height: 50,
+        height: height * 0.06,
         borderWidth: 1,
         borderColor: '#042552',
         borderRadius: 10,
         paddingLeft: 20,
-        marginBottom: 20,
+        marginBottom: height * 0.02,
+        marginTop: height * -0.004,
+
     },
     phoneInputContainer: {
         width: '100%',
-        height: 50,
+        height: height * 0.06,
         borderWidth: 1,
         borderColor: '#042552',
         borderRadius: 10,
-        marginBottom: 20,
+        marginBottom: height * 0.02,
     },
     phoneInputTextContainer: {
         borderRadius: 10,
         backgroundColor: '#FFFFFF',
     },
     phoneInputText: {
-        height: 48,
-        fontSize: 16,
-        
+        height: height * 0.06,
+        fontSize: width * 0.04,
     },
     phoneInputCodeText: {
-        fontSize: 16,
-        top:-3
-    },
-    togglePassword: {
-        textAlign: 'right',
-        color: '#03D3B9',
+        fontSize: width * 0.04,
+        marginTop: -3,
     },
     button: {
         width: '100%',
-        height: 52,
+        height: height * 0.07,
         backgroundColor: '#03D3B9',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10,
+        marginTop: height * 0.01,
     },
     buttonText: {
         color: "white",
-        fontSize: 18,
+        fontSize: width * 0.045,
         fontWeight: 'bold',
     },
     bottomText: {
-        fontSize: 16,
+        fontSize: width * 0.04,
         color: '#727E96',
         textAlign: 'center',
+        marginTop: height * 0.02,
     },
     loginLink: {
         color: '#03D3B9',
