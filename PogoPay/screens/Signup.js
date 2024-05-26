@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PhoneInput from 'react-native-phone-number-input';
+import axios from 'axios';
 
 const Signup = () => {
     const navigation = useNavigation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [RIB, setRIB] = useState('');
-    const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [hidePassword, setHidePassword] = useState(true);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [formattedValue, setFormattedValue] = useState('');
@@ -23,19 +24,39 @@ const Signup = () => {
         navigation.navigate('Login');
     };
 
-    const handleSignUpPress = () => {
-        // Implement your signup logic here
-        // You can send data to your server or Firebase
-        console.log({
-            name,
-            phoneNumber: formattedValue,
-            email,
-            RIB,
-            address,
-            password
-        });
-        navigation.navigate('Login'); // Navigate to Home or other screen after successful signup
+    const handleSignUpPress = async () => {
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/register', {
+                name,
+                email,
+                phone: formattedValue,
+                password,
+                password_confirmation: passwordConfirmation,
+            });
+    
+            if (response.status === 201) {
+                Alert.alert('Success', 'Account created successfully');
+                navigation.navigate('Login');
+            } else {
+                Alert.alert('Error', 'Something went wrong');
+            }
+        } catch (error) {
+            console.error(error);
+            if (error.response && error.response.data) {
+                const errors = error.response.data;
+                let errorMessage = '';
+                for (const key in errors) {
+                    if (errors.hasOwnProperty(key)) {
+                        errorMessage += `${errors[key].join(' ')}\n`;
+                    }
+                }
+                Alert.alert('Error', errorMessage);
+            } else {
+                Alert.alert('Error', 'An unexpected error occurred');
+            }
+        }
     };
+    
 
     const isValidEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -73,18 +94,17 @@ const Signup = () => {
                     onChangeText={text => setEmail(text)}
                     onBlur={() => {
                         if (!isValidEmail(email)) {
+                            Alert.alert('Invalid Email', 'Please enter a valid email address');
                         }
                     }}
                     accessibilityLabel="Enter your email"
                 />
-                 <TextInput
+                <TextInput
                     style={styles.input}
                     placeholder="RIB"
                     autoCapitalize="words"
                     onChangeText={text => setRIB(text)}
-                    // accessibilityLabel="Enter your name"
                 />
-              
                 <View style={styles.passwordInputContainer}>
                     <TextInput
                         style={[styles.input, styles.passwordInput]}
@@ -104,6 +124,15 @@ const Signup = () => {
                         />
                     </TouchableOpacity>
                 </View>
+                <View style={styles.passwordInputContainer}>
+                    <TextInput
+                        style={[styles.input, styles.passwordInput]}
+                        placeholder="Confirm Password"
+                        autoCapitalize="none"
+                        secureTextEntry={hidePassword}
+                        onChangeText={text => setPasswordConfirmation(text)}
+                    />
+                </View>
             </View>
             <TouchableOpacity style={styles.button} onPress={handleSignUpPress}>
                 <Text style={styles.buttonText}>SIGN UP</Text>
@@ -112,6 +141,7 @@ const Signup = () => {
         </View>
     );
 }
+
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -145,13 +175,11 @@ const styles = StyleSheet.create({
         marginBottom: height * 0.05,
         resizeMode: 'contain',
         marginTop: height * -0.03,
-
     },
     inputContainer: {
         width: '100%',
         marginBottom: height * -0.001,
         marginTop: height * -0.05,
-
     },
     input: {
         width: '100%',
@@ -162,7 +190,6 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         marginBottom: height * 0.02,
         marginTop: height * -0.004,
-
     },
     phoneInputContainer: {
         width: '100%',
