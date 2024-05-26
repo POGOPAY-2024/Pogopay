@@ -5,5 +5,14 @@ module.exports = function(api) {
     plugins: [
       'react-native-reanimated/plugin', // Reanimated plugin has to be listed last.
     ],
+  //   "plugins": [
+  //     [
+  //       "expo-barcode-scanner",
+  //       {
+  //         "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
+  //       }
+  //     ]
+  //   ]
+  // }
   };
-};
+}
