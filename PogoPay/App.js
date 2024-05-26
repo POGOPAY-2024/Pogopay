@@ -25,6 +25,9 @@ import Reset from './screens/Reset';
 import Transfer from './screens/Transfer';
 import Logout from './screens/Logout';
 import AddCard from './screens/AddCard';
+import Scan from './screens/Scan';
+import Confirmation from './screens/Confirmation';
+import PasswordSecurity from './screens/Passwordsecurity';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -48,6 +51,14 @@ function AuthStack() {
       <Stack.Screen name="home" component={MainStack} options={{ headerShown: false }} />
       <Stack.Screen name="AddCard" component={AddCard} options={{ headerShown: false }} />
       <Stack.Screen name="CodeQr" component={CodeQr} options={{ headerShown: true }} />
+      <Stack.Screen name="Transfer" component={Transfer} options={{ headerShown: false }} />
+      <Stack.Screen name="Confirm" component={Confirmation} options={{ headerShown: false }} />
+      <Stack.Screen name="Scan" component={Scan} options={{ headerShown: false }} />
+      <Stack.Screen name="Security" component={PasswordSecurity} options={{ headerShown: false }} />
+
+
+
+
 
 
 
@@ -143,3 +154,5 @@ function App() {
 }
 
 export default App;
+
+

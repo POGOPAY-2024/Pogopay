@@ -25,6 +25,9 @@ const HomeScreen = () => {
     const handleForgotInPress = () => {
         navigation.navigate('CodeQr');
     };
+    const handleScanQr = () => {
+        navigation.navigate('Scan');
+    };
 
     return (
         <View style={styles.container}>
@@ -57,9 +60,7 @@ const HomeScreen = () => {
                 {/* Scan QR Code Button */}
                 <TouchableOpacity
                     style={[styles.button, styles.secondaryButton]}
-                    onPress={() => {
-                        // Handle button press for scanning QR code
-                    }}
+                   onPress={handleScanQr}
                 >
                     <Text style={styles.buttonText}>Scan QR Code</Text>
                 </TouchableOpacity>
