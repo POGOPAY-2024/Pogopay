@@ -26,7 +26,7 @@ const Signup = () => {
 
     const handleSignUpPress = async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/register', {
+            const response = await axios.post('https://192.168.1.107:8000/api/register', {
                 name,
                 email,
                 phone: formattedValue,

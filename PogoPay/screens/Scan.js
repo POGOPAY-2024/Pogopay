@@ -18,7 +18,7 @@ export default function Scan({ navigation }) {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    navigation.navigate('Transfer', { qrData: data });
+    navigation.navigate('Security', { qrData: data });
   };
 
   if (hasPermission === null) {
