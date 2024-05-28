@@ -81,7 +81,7 @@ const Signup = () => {
                 />
                 <PhoneInput
                     defaultCode='MA'
-                    placeholder='Mobile number'
+                    placeholder='Mobile number 1'
                     value={phone}
                     onChangeText={(text) => setPhone(text)}
                     onChangeFormattedText={(text) => setFormattedValue(text)}
