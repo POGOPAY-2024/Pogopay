@@ -252,5 +252,3 @@ const styles = StyleSheet.create({
         transform: [{ translateY: -10 }],
     },
 });
-
-export default Signup;

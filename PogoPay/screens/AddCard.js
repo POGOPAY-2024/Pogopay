@@ -7,7 +7,7 @@ const AddCard = () => {
   const [cvv, setCVV] = useState('');
 
   const handleAddCard = () => {
-    fetch('https://9ab4-105-191-8-107.ngrok-free.app/api/add-card', {
+    fetch('https://f817-105-189-9-91.ngrok-free.app/api/add-card', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

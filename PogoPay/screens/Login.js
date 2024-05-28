@@ -14,36 +14,34 @@ const Login = () => {
     const togglePasswordVisibility = () => {
         setHidePassword(!hidePassword);
     };
-
     const handleSignInPress = async () => {
         try {
-            const response = await axios.post('https://0fc3-196-113-159-192.ngrok-free.app/api/login', {
+            const response = await axios.post('https://f817-105-189-9-91.ngrok-free.app/api/login', {
                 email,
                 password,
             });
-
+    
             if (response.status === 200) {
-                // Extraire le jeton de l'objet response.data.token
                 const token = response.data.token;
-                // Convertir le jeton en chaîne de caractères avec JSON.stringify
-                await AsyncStorage.setItem('token', JSON.stringify(token));
-                Alert.alert('Success', 'Logged in successfully');
+                await AsyncStorage.setItem('token', JSON.stringify(token)); // Stocker le jeton en tant que chaîne
+                Alert.alert('Succès', 'Connexion réussie');
                 navigation.navigate('home');
             } else {
-                Alert.alert('Error', 'Something went wrong');
+                Alert.alert('Erreur', 'Une erreur est survenue');
             }
         } catch (error) {
             console.error(error);
             if (error.response) {
-                Alert.alert('Error', `Response error: ${error.response.data.error}`);
+                Alert.alert('Erreur', `Erreur de réponse : ${error.response.data.error}`);
             } else if (error.request) {
-                Alert.alert('Error', 'Request error: No response received from server');
+                Alert.alert('Erreur', 'Erreur de requête : Aucune réponse du serveur');
             } else {
-                Alert.alert('Error', `Request setup error: ${error.message}`);
+                Alert.alert('Erreur', `Erreur de configuration de la requête : ${error.message}`);
             }
         }
     };
-
+    
+    
     const handleSignUpPress = () => {
         navigation.navigate('Signup');
     };

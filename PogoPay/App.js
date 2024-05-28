@@ -27,12 +27,14 @@ import Logout from './screens/Logout';
 import AddCard from './screens/AddCard';
 import Scan from './screens/Scan';
 import Confirmation from './screens/Confirmation';
-import PasswordSecurity from './screens/Passwordsecurity';
+//import PasswordSecurity from './screens/Passwordsecurity';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 // Define a custom component to render drawer icons
+      //<Stack.Screen name="Security" component={PasswordSecurity} options={{ headerShown: false }} />
+
 const DrawerIcon = ({ name, color }) => {
   return <Feather name={name} size={24} color={color} />;
 };
@@ -54,7 +56,6 @@ function AuthStack() {
       <Stack.Screen name="Transfer" component={Transfer} options={{ headerShown: false }} />
       <Stack.Screen name="Confirm" component={Confirmation} options={{ headerShown: false }} />
       <Stack.Screen name="Scan" component={Scan} options={{ headerShown: false }} />
-      <Stack.Screen name="Security" component={PasswordSecurity} options={{ headerShown: false }} />
 
 
 
