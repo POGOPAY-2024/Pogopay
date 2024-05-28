@@ -4,16 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PhoneInput from 'react-native-phone-number-input';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Signup = () => {
     const navigation = useNavigation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [RIB, setRIB] = useState('');
+    const [rib, setRIB] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [hidePassword, setHidePassword] = useState(true);
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setPhone] = useState('');
     const [formattedValue, setFormattedValue] = useState('');
 
     const togglePasswordVisibility = () => {
@@ -26,37 +27,40 @@ const Signup = () => {
 
     const handleSignUpPress = async () => {
         try {
-            const response = await axios.post('http://192.168.1.107:8000/api/register', {
+            const response = await axios.post(' https://0fc3-196-113-159-192.ngrok-free.app/api/register', {
                 name,
                 email,
                 phone: formattedValue,
+                rib,
                 password,
                 password_confirmation: passwordConfirmation,
             });
-    
+
             if (response.status === 201) {
                 Alert.alert('Success', 'Account created successfully');
+                const token = response.data.token;
+                await AsyncStorage.setItem('token', token);
                 navigation.navigate('Login');
             } else {
                 Alert.alert('Error', 'Something went wrong');
             }
         } catch (error) {
             console.error(error);
-            if (error.response && error.response.data) {
-                const errors = error.response.data;
-                let errorMessage = '';
-                for (const key in errors) {
-                    if (errors.hasOwnProperty(key)) {
-                        errorMessage += `${errors[key].join(' ')}\n`;
-                    }
+            if (error.response) {
+                const errors = error.response.data.errors;
+                if (errors) {
+                    const errorMessages = Object.values(errors).flat().join('\n');
+                    Alert.alert('Validation Error', errorMessages);
+                } else {
+                    Alert.alert('Error', `Response error: ${error.response.data.message}`);
                 }
-                Alert.alert('Error', errorMessage);
+            } else if (error.request) {
+                Alert.alert('Error', 'Request error: No response received from server');
             } else {
-                Alert.alert('Error', 'An unexpected error occurred');
+                Alert.alert('Error', `Request setup error: ${error.message}`);
             }
         }
     };
-    
 
     const isValidEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,9 +81,9 @@ const Signup = () => {
                 />
                 <PhoneInput
                     defaultCode='MA'
-                    placeholder='mobile number'
-                    value={phoneNumber}
-                    onChangeText={(text) => setPhoneNumber(text)}
+                    placeholder='Mobile number'
+                    value={phone}
+                    onChangeText={(text) => setPhone(text)}
                     onChangeFormattedText={(text) => setFormattedValue(text)}
                     containerStyle={styles.phoneInputContainer}
                     textContainerStyle={styles.phoneInputTextContainer}
@@ -141,7 +145,6 @@ const Signup = () => {
         </View>
     );
 }
-
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({

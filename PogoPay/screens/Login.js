@@ -1,12 +1,13 @@
-// Updated code for Login component
 import React, { useState } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const Login = () => {
     const navigation = useNavigation();
-    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [hidePassword, setHidePassword] = useState(true);
 
@@ -14,10 +15,36 @@ const Login = () => {
         setHidePassword(!hidePassword);
     };
 
-    const handleSignInPress = () => {
-        navigation.navigate('home');
+    const handleSignInPress = async () => {
+        try {
+            const response = await axios.post('https://0fc3-196-113-159-192.ngrok-free.app/api/login', {
+                email,
+                password,
+            });
+
+            if (response.status === 200) {
+                // Extraire le jeton de l'objet response.data.token
+                const token = response.data.token;
+                // Convertir le jeton en chaîne de caractères avec JSON.stringify
+                await AsyncStorage.setItem('token', JSON.stringify(token));
+                Alert.alert('Success', 'Logged in successfully');
+                navigation.navigate('home');
+            } else {
+                Alert.alert('Error', 'Something went wrong');
+            }
+        } catch (error) {
+            console.error(error);
+            if (error.response) {
+                Alert.alert('Error', `Response error: ${error.response.data.error}`);
+            } else if (error.request) {
+                Alert.alert('Error', 'Request error: No response received from server');
+            } else {
+                Alert.alert('Error', `Request setup error: ${error.message}`);
+            }
+        }
     };
-    const handleSign = () => {
+
+    const handleSignUpPress = () => {
         navigation.navigate('Signup');
     };
 
@@ -32,13 +59,13 @@ const Login = () => {
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Name"
-                    autoCapitalize="words"
-                    onChangeText={text => setName(text)}
-                    accessibilityLabel="Enter your name"
+                    placeholder="Email"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    onChangeText={text => setEmail(text)}
+                    accessibilityLabel="Enter your email"
                 />
-             
-               <View style={styles.passwordInputContainer}>
+                <View style={styles.passwordInputContainer}>
                     <TextInput
                         style={[styles.input, styles.passwordInput]}
                         placeholder="Password"
@@ -56,29 +83,25 @@ const Login = () => {
                             color="#000"
                         />
                     </TouchableOpacity>
-                    
                 </View>
                 <TouchableOpacity style={styles.forgotPasswordLinkContainer} onPress={handleForgotInPress}>
                     <Text style={styles.forgotPasswordLink}>Forgot password?</Text>
                 </TouchableOpacity>
             </View>
-                
-        
             <TouchableOpacity style={styles.button} onPress={handleSignInPress}>
                 <Text style={styles.buttonText}>Log In</Text>
-            </TouchableOpacity  >
-         
-          <Text style={styles.bottomText}>Don't have an account? 
-           <TouchableOpacity  onPress={handleSign}> 
-          <Text style={styles.signupLink} >Sign up</Text> 
-          </TouchableOpacity> 
-          </Text>
-          
+            </TouchableOpacity>
+            <Text style={styles.bottomText}>
+                Don't have an account? 
+                <TouchableOpacity onPress={handleSignUpPress}>
+                    <Text style={styles.signupLink}>Sign up</Text> 
+                </TouchableOpacity> 
+            </Text>
         </View>
     );
-}
-const { width, height } = Dimensions.get('window');
+};
 
+const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
@@ -91,11 +114,6 @@ const styles = StyleSheet.create({
         fontSize: width * 0.06, // Responsive font size
         color: '#011A51',
         marginTop: height * 0.05,
-    },
-    subtitle: {
-        fontSize: width * 0.035, // Responsive font size
-        color: '#727E96',
-        marginTop: height * 0.02,
     },
     image: {
         width: '60%',
@@ -116,10 +134,6 @@ const styles = StyleSheet.create({
         paddingLeft: width * 0.05, // Responsive padding
         marginBottom: height * 0.025, // Responsive margin
     },
-    togglePassword: {
-        textAlign: 'right',
-        color: '#03D3B9',
-    },
     forgotPasswordLinkContainer: {
         alignSelf: 'flex-end',
     },
@@ -128,7 +142,6 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         fontSize: width * 0.035, // Responsive font size
         top: '-68%', // Center vertically within the input field
-
     },
     button: {
         width: '100%',
@@ -152,7 +165,6 @@ const styles = StyleSheet.create({
     signupLink: {
         color: '#FB847C',
         textDecorationLine: 'underline',
-
     },
     passwordInputContainer: {
         flexDirection: 'row',

@@ -172,18 +172,17 @@ class PaymentController extends Controller
         return response()->json($transactions);
     }
 
-    // Méthode pour récupérer le profil de l'utilisateur
     public function getProfile(Request $request)
     {
         $user = Auth::user();
         return response()->json($user);
     }
 
-    // Méthode pour mettre à jour le profil de l'utilisateur
+    // Method to update user profile
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        $user->update($request->all());
-        return response()->json(['status' => 'success', 'message' => 'Profile updated successfully']);
+        $user->update($request->only('name', 'email', 'phone'));
+        return response()->json(['status' => 'success', 'message' => 'Profile updated successfully', 'user' => $user]);
     }
 }

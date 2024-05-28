@@ -1,14 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet,Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 const AddCard = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [cvv, setCVV] = useState('');
 
-//   const handleAddCard = () => {
-//     console.log('Credit card details:', { cardNumber, expirationDate, cvv });
-//   };
+  const handleAddCard = () => {
+    fetch('https://9ab4-105-191-8-107.ngrok-free.app/api/add-card', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        card_number: cardNumber,
+        expiry_date: expirationDate,
+        cvv: cvv,
+      }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add card');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Card added successfully:', data);
+        // Vous pouvez ajouter ici des actions supplémentaires après l'ajout réussi de la carte
+      })
+      .catch(error => {
+        console.error('Error adding card:', error);
+        // Gérez les erreurs ici
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -34,7 +58,7 @@ const AddCard = () => {
         onChangeText={setCVV}
         keyboardType="numeric"
       />
-      <TouchableOpacity style={styles.button} >
+      <TouchableOpacity style={styles.button} onPress={handleAddCard}>
         <Text style={styles.buttonText}>Add Card</Text>
       </TouchableOpacity>
     </View>
@@ -52,7 +76,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 30,
-    top:-40
+    top: -40,
   },
   image: {
     width: '70%',
