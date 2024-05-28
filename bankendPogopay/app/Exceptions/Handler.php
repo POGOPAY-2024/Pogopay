@@ -3,8 +3,6 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
-
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -49,8 +47,10 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
     public function render($request, Throwable $e)
     {
-        return ExceptionHandlerHelper::render($request, $e);
+        // Retour à la méthode par défaut de la classe parente si ExceptionHandlerHelper n'est pas nécessaire
+        return parent::render($request, $e);
     }
 }
