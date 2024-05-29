@@ -27,7 +27,7 @@ import Logout from './screens/Logout';
 import AddCard from './screens/AddCard';
 import Scan from './screens/Scan';
 import Confirmation from './screens/Confirmation';
-//import PasswordSecurity from './screens/Passwordsecurity';
+import Password from './screens/Password';
 import { LogBox } from 'react-native';
 
 LogBox.ignoreAllLogs();
@@ -59,6 +59,8 @@ function AuthStack() {
       <Stack.Screen name="Transfer" component={Transfer} options={{ headerShown: false }} />
       <Stack.Screen name="Confirm" component={Confirmation} options={{ headerShown: false }} />
       <Stack.Screen name="Scan" component={Scan} options={{ headerShown: false }} />
+      <Stack.Screen name="Security" component={Password} options={{ headerShown: false }} />
+
 
 
 

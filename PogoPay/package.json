@@ -23,7 +23,7 @@
     "axios": "^1.7.2",
     "expo": "~51.0.8",
     "expo-barcode-scanner": "~13.0.1",
-    "expo-camera": "~15.0.9",
+    "expo-camera": "~15.0.09",
     "expo-image-picker": "~15.0.5",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",

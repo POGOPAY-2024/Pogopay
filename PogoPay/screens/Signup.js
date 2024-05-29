@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import instance from "../axiosConfig"; // Importing Axios instance
@@ -58,6 +58,8 @@ const Signup = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Sign up</Text>
+            <Image style={styles.image} source={require('../assets/sign up.png')} />
+
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
@@ -78,6 +80,12 @@ const Signup = () => {
                     keyboardType="email-address"
                     onChangeText={text => setEmail(text)}
                 />
+                 <TextInput
+                    style={styles.input}
+                    placeholder="RIB"
+                    autoCapitalize="words"
+                    onChangeText={text => setRib(text)}
+                />
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
@@ -92,12 +100,7 @@ const Signup = () => {
                     secureTextEntry={true}
                     onChangeText={text => setPasswordConfirmation(text)}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="RIB"
-                    autoCapitalize="words"
-                    onChangeText={text => setRib(text)}
-                />
+               
             </View>
             <TouchableOpacity style={styles.button} onPress={handleSignUpPress} disabled={loading}>
                 <Text style={styles.buttonText}>{loading ? 'Signing Up...' : 'SIGN UP'}</Text>
@@ -117,6 +120,11 @@ const styles = StyleSheet.create({
         paddingTop: height * 0.1,
         paddingHorizontal: width * 0.05,
     },
+    image: {
+        width: width * 0.7, // Adjusted width based on screen width
+        height: height * 0.2, // Adjusted height based on screen height
+        marginBottom: height * 0.03, // Adjusted margin based on screen height
+    },
     text: {
         fontWeight: "bold",
         fontSize: width * 0.06,
@@ -125,7 +133,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         width: '100%',
-        marginBottom: height * 0.02,
+        marginBottom: height * 0.0,
     },
     input: {
         width: '100%',

@@ -11,6 +11,10 @@ const Login = ({ navigation }) => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handleLogInPress = () => {
+    navigation.navigate('Signup');
+};
+
   const handleEmailFocus = () => {
     setEmailFocused(true);
   };
@@ -52,99 +56,93 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -height * 0.1} // Adjust this value as needed
-    >
-      <View style={[styles.inputContainer, emailFocused && styles.emailInputFocused]}>
-        <Text style={styles.connexion}>Connexion</Text>
-        <Text style={styles.text}>C'est notre grand plaisir de vous avoir ici</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          onFocus={handleEmailFocus}
-          placeholderTextColor="#042552"
-          onBlur={handleEmailBlur}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          placeholderTextColor="#042552" 
-          secureTextEntry
-        />
+    <View style={styles.container}>
+        <Text style={styles.text}>Log In</Text>
+        <Image style={styles.image} source={require('../assets/login.jpg')} />
+
+        <View style={styles.inputContainer}>
+         
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                onChangeText={text => setEmail(text)}
+            />
+            
+            <TextInput
+                style={styles.input}
+                placeholder="Password"
+                autoCapitalize="none"
+                secureTextEntry={true}
+                onChangeText={text => setPassword(text)}
+            />
+          
+           
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Sign in</Text>
-          )}
+            <Text style={styles.buttonText}>{loading ? 'LOGING IN...' : 'LOG IN'}</Text>
         </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
-  );
+        <Text style={styles.bottomText}>D'ont have an account? <Text style={styles.loginLink} onPress={handleLogInPress}>Sign up</Text></Text>
+    </View>
+);
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white'
-  },
-  text: {
-    fontSize: width * 0.03,
-    color:"#042552",
-    marginBottom: height * 0.02,
-  },
-  inputContainer: {
-    width: width * 0.9,
-    paddingTop: height * 0.05,
-    paddingRight: width * 0.06,
-    paddingBottom: height * 0.06,
-    paddingLeft: width * 0.06,
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginBottom: height * 0.02,
-    borderWidth: 1,
-    borderColor: '#042552',
-    borderRadius: width * 0.1,
-  },
-  input: {
-    width: '100%',
-    height: height * 0.06,
-    borderWidth: 1,
-    borderColor: '#042552',
-    borderRadius: width * 0.03,
-    paddingLeft: width * 0.05,
-    backgroundColor:'white',
-    marginBottom: height * 0.02,
-  },
-  connexion: {
-    fontWeight:'bold',
-    fontSize: width * 0.06,
-    color:"#042552",
-    marginBottom: height * 0.01,
-  },
-  button: {
-    width: '100%',
-    height: height * 0.06,
-    backgroundColor: '#042552',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: width * 0.03,
-  },
-  buttonText: {
-    color:"white",
-    fontSize: width * 0.05,
-    fontWeight:'bold',
-  }
+    container: {
+        backgroundColor: '#FFFFFF',
+        flex: 1,
+        alignItems: 'center',
+        paddingTop: height * 0.1,
+        paddingHorizontal: width * 0.05,
+    },
+    image: {
+        width: width * 0.5, // Adjusted width based on screen width
+        height: height * 0.2, // Adjusted height based on screen height
+        marginBottom: height * 0.03, // Adjusted margin based on screen height
+    },
+    text: {
+        fontWeight: "bold",
+        fontSize: width * 0.06,
+        color: "#011A51",
+        marginBottom: height * 0.02,
+    },
+    inputContainer: {
+        width: '100%',
+        marginBottom: height * 0.0,
+    },
+    input: {
+        width: '100%',
+        height: height * 0.06,
+        borderWidth: 1,
+        borderColor: '#042552',
+        borderRadius: 10,
+        paddingLeft: 20,
+        marginBottom: height * 0.02,
+    },
+    button: {
+        width: '100%',
+        height: height * 0.07,
+        backgroundColor: '#03D3B9',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        marginTop: height * 0.01,
+    },
+    buttonText: {
+        color: "white",
+        fontSize: width * 0.045,
+        fontWeight: 'bold',
+    },
+    bottomText: {
+        fontSize: width * 0.04,
+        color: '#727E96',
+        textAlign: 'center',
+        marginTop: height * 0.02,
+    },
+    loginLink: {
+        color: '#03D3B9',
+        textDecorationLine: 'underline',
+    },
 });
-
 export default Login;
