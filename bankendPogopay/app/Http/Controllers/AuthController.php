@@ -52,30 +52,15 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
-    {
-        // $credentials = $request->only('email', 'password');
-
-        // if (Auth::attempt($credentials)) {
-        //     $user = Auth::user();
-        //     $token = $user->createToken('Personal Access Token')->accessToken;
-
-        //     return response()->json(['token' => $token], 200);
-        // } else {
-        //     return response()->json(['error' => 'Unauthorized'], 401);
-        // }
-
-
-
-
-
-    $credentials = $request->only('email', 'password');
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
+{
+    if (Auth::attempt(['email' => $request->input("email"), 'password' => $request->input("password")])) {
+        $user = User::where('email', $request->email)->first();
+                $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['token' => $token, 'user' => $user], 200);
     }
     return response()->json(['message' => 'Unauthorized'], 401);
 }
+
 
 
 

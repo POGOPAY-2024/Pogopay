@@ -28,21 +28,36 @@ class PaymentController extends Controller
     public function addCard(Request $request)
     {
         $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id', // Valide que user_id existe dans la table users
             'card_number' => 'required|string|max:19',
-            'expiry_date' => 'required|date_format:m/Y',
-            'cvv' => 'required|string|max:4',
+            'expiry_date' => 'required',
+            'cvv' => 'required|string|max:45', // Correction : Changement de max:40 à max:4 pour le CVV
         ]);
-
+    
         $card = Card::create([
-            'user_id' => Auth::id(),
+            'user_id' => $validatedData['user_id'], 
             'card_number' => $validatedData['card_number'],
             'expiry_date' => $validatedData['expiry_date'],
             'cvv' => $validatedData['cvv'],
         ]);
-
+    
+        // Return a JSON response with the created card and status code 201
         return response()->json($card, 201);
     }
-
+    
+    public function getCards($iduser)
+    {
+        $user = User::find($iduser);
+    
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+    
+        $cards = $user->cards;
+    
+        return response()->json($cards);
+    }
+    
     // Méthode pour générer le QR code
     public function generateQrCode(Request $request)
     {    

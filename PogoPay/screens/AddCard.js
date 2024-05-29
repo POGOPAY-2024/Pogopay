@@ -1,43 +1,68 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importez AsyncStorage
+import instance from '../axiosConfig'; // Importez votre instance Axios configurée
 
 const AddCard = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [cvv, setCVV] = useState('');
+  const [user, setUser] = useState({});
 
-  const handleAddCard = () => {
-    fetch('https://f817-105-189-9-91.ngrok-free.app/api/add-card', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+  useEffect(() => {
+    fetchUserAndData();
+  }, []);
+
+  const fetchUserAndData = async () => {
+    try {
+      const userDataJson = await AsyncStorage.getItem('userData');
+      if (userDataJson !== null) {
+        const user = JSON.parse(userDataJson);
+        setUser(user);
+      } else {
+        console.log('userData is null');
+      }
+    } catch (error) {
+      console.error('Error fetching user and data:', error.message);
+      Alert.alert('Error', 'Failed to fetch data. Please try again.');
+    }
+  };
+
+  const handleAddCard = async () => {
+    try {
+      if (!cardNumber.trim() || !expirationDate.trim() || !cvv.trim()) {
+        Alert.alert('Error', 'Please fill in all fields');
+        return;
+      }
+  
+      const response = await instance.post('/add-card', {
+        user_id: user.id, // Utilisez user.id au lieu de 'use_id=user.id'
         card_number: cardNumber,
         expiry_date: expirationDate,
         cvv: cvv,
-      }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to add card');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Card added successfully:', data);
-        // Vous pouvez ajouter ici des actions supplémentaires après l'ajout réussi de la carte
-      })
-      .catch(error => {
-        console.error('Error adding card:', error);
-        // Gérez les erreurs ici
       });
+  
+      if (response.status === 201) {
+        console.log('Card added successfully:', response.data);
+        Alert.alert('Success', 'Card added successfully');
+        
+        setCardNumber('');
+        setExpirationDate('');
+        setCVV('');
+      } else {
+        console.error('Error adding card:', response.data);
+        Alert.alert('Error', 'Failed to add card');
+      }
+    } catch (error) {
+      console.error('Error adding card:', error);
+      Alert.alert('Error', 'Failed to add card');
+    }
   };
+  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add Credit Card</Text>
-      <Image style={styles.image} source={require('../assets/credit-card.png')} />
 
       <TextInput
         style={styles.input}
@@ -58,6 +83,7 @@ const AddCard = () => {
         onChangeText={setCVV}
         keyboardType="numeric"
       />
+
       <TouchableOpacity style={styles.button} onPress={handleAddCard}>
         <Text style={styles.buttonText}>Add Card</Text>
       </TouchableOpacity>
@@ -76,12 +102,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 30,
-    top: -40,
-  },
-  image: {
-    width: '70%',
-    height: 180,
-    marginBottom: 60,
   },
   input: {
     borderWidth: 1,

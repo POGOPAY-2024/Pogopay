@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [PaymentController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/token', [AuthController::class, 'createToken'])->middleware('auth:sanctum');
+    Route::get('/get-cards/{id}', [PaymentController::class, 'getCards']); 
 
 
 });

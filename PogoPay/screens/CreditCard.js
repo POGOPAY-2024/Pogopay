@@ -1,45 +1,62 @@
-import React from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importez AsyncStorage
 import { useNavigation } from '@react-navigation/native';
-
+import instance from '../axiosConfig'; // Importez votre instance Axios configurée
 
 const CreditCard = () => {
-  
   const navigation = useNavigation();
+  const [cardData, setCardData] = useState([]);
 
-  const handleCodeQr = () => {
+  useEffect(() => {
+    fetchUserAndData();
+  }, []);
+
+  const fetchUserAndData = async () => {
+    try {
+      const userDataJson = await AsyncStorage.getItem('userData');
+      if (userDataJson !== null) {
+        const user = JSON.parse(userDataJson);
+        await fetchCardData(user.id);
+      } else {
+        console.log('userData is null');
+      }
+    } catch (error) {
+      console.error('Error fetching user and data:', error.message);
+      Alert.alert('Error', 'Failed to fetch data. Please try again.');
+    }
+  };
+
+  const fetchCardData = async (userId) => {
+    try {
+      const response = await instance.get(`/get-cards/${userId}`);
+      setCardData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching cards:', error.message);
+      Alert.alert('Error', 'Failed to fetch cards. Please try again.');
+    } 
+  };
+
+  const handleAddCard = () => {
     navigation.navigate('AddCard');
-};
-  // Mock data for credit cards
-  const creditCards = [
-    {
-      id: 1,
-      cardNumber: '**** **** **** 1234',
-      cardholderName: 'John Doe',
-      expirationDate: '12/23',
-    },
-    {
-      id: 2,
-      cardNumber: '**** **** **** 5678',
-      cardholderName: 'Jane Smith',
-      expirationDate: '06/24',
-    },
-    // Add more credit card objects as needed
-  ];
+  };
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.cardList}>
-        {creditCards.map((card) => (
+        {cardData.map((card) => (
           <TouchableOpacity key={card.id} style={styles.cardItem}>
-            <Text style={styles.cardNumber}>{card.cardNumber}</Text>
+            <Text style={styles.cardNumber}>{card.card_number}</Text>
             <Text style={styles.cardInfo}>
-              {card.cardholderName} | Expires: {card.expirationDate}
+              Expires: {card.expiry_date}
+            </Text>
+            <Text style={styles.cardInfo}>
+              CVV: {card.cvv}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <TouchableOpacity style={styles.addButton}  onPress={handleCodeQr}>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddCard}>
         <Text style={styles.addButtonLabel}>Add New Card</Text>
       </TouchableOpacity>
     </View>
@@ -54,13 +71,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingVertical: height * 0.05,
     paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#011A51',
-    marginBottom: 20,
-    textAlign: 'center',
   },
   cardList: {
     flex: 1,
