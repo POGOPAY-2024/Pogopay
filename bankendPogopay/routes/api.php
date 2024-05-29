@@ -29,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [PaymentController::class, 'getProfile']);
     Route::put('/profile', [PaymentController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/token', [AuthController::class, 'createToken'])->middleware('auth:sanctum');
+
 
 });
 

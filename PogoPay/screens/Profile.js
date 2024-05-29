@@ -1,230 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Alert, TextInput, ScrollView, ActivityIndicator } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; 
-import * as ImagePicker from 'expo-image-picker';
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Dimensions } from 'react-native';
 
 const Profile = () => {
-  const navigation = useNavigation();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [editingField, setEditingField] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState('');
-
+  const [user, setUser] = useState({});
+  
   useEffect(() => {
-    fetchProfileData();
+    fetchUserId();
   }, []);
 
-  const fetchProfileData = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem('token');
-      if (!storedToken) {
-        throw new Error('No token found');
-      }
-      const token = JSON.parse(storedToken);
-      setToken(token);
-      const response = await axios.get('https://f817-105-189-9-91.ngrok-free.app/api/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const { name, email, phone } = response.data;
-      setUsername(name);
-      setEmail(email);
-      setPhone(phone);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching profile data:', error);
-      if (error.response && error.response.status === 401) {
-        Alert.alert('Authorization Error', 'Please log in again.');
-        navigation.navigate('Login');
-      } else if (error.response && error.response.status === 404) {
-        Alert.alert('Profile not found', 'Please create a profile.');
-        navigation.navigate('CreateProfile');
+  const fetchUserId = async () => {
+    try {    
+      const userDataJson = await AsyncStorage.getItem('userData');
+      if (userDataJson !== null) {
+        setUser(JSON.parse(userDataJson));
       } else {
-        Alert.alert('Error', 'Failed to fetch profile data');
+        console.log('userData is null');
       }
-      setLoading(false);
-    }
-  };
-
-  const handleEdit = (field) => {
-    setEditingField(field);
-  };
-
-  const handleInputChange = (field, value) => {
-    switch (field) {
-      case 'username':
-        setUsername(value);
-        break;
-      case 'email':
-        setEmail(value);
-        break;
-      case 'phone':
-        setPhone(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await axios.post('https://f817-105-189-9-91.ngrok-free.app/api/logout', {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      await AsyncStorage.removeItem('token');
-      navigation.navigate('Login');
     } catch (error) {
-      console.error('Error logging out:', error);
-      Alert.alert('Error', 'Failed to log out');
+      console.error('Error fetching user ID:', error.message);
     }
   };
 
-  const selectImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setProfileImage({ uri: result.uri });
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem('token');
-      if (!storedToken) {
-        throw new Error('No token found');
-      }
-
-      const updatedProfile = {
-        name: username,
-        email,
-        phone,
-      };
-
-      const response = await axios.put('https://f817-105-189-9-91.ngrok-free.app/api/profile', updatedProfile, {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      });
-
-      Alert.alert('Success', 'Profile updated successfully');
-      setEditingField(null); // Reset the editing field
-    } catch (error) {
-      console.error('Error updating profile data:', error);
-
-      if (error.response) {
-        if (error.response.status === 401) {
-          Alert.alert('Authorization Error', 'Please log in again.');
-          navigation.navigate('Login');
-        } else if (error.response.status === 400) {
-          Alert.alert('Validation Error', 'Please check the entered data.');
-        } else {
-          Alert.alert('Error', 'Failed to update profile');
-        }
-      } else {
-        Alert.alert('Network Error', 'Failed to update profile due to network issues.');
-      }
-    }
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#374151" />
-      </View>
-    );
-  }
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={selectImage}>
-        <Image style={styles.image} source={profileImage ? profileImage : require('../assets/user1.png')} />
-        <FontAwesome name="camera" size={24} color="white" style={styles.cameraIcon} />
-      </TouchableOpacity>
-      <View style={styles.infoContainer}>
-        <View style={styles.info}>
-          <FontAwesome name="user" size={20} color="#374151" style={styles.icon} />
-          {editingField === 'username' ? (
-            <TextInput
-              style={styles.input}
-              value={username}
-              onChangeText={(value) => handleInputChange('username', value)}
-              onBlur={handleSave}
-            />
-          ) : (
-            <>
-              <Text style={styles.text}>{username}</Text>
-              <TouchableOpacity onPress={() => handleEdit('username')}>
-                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-        <View style={styles.info}>
-          <FontAwesome name="envelope" size={20} color="#374151" style={styles.icon} />
-          {editingField === 'email' ? (
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={(value) => handleInputChange('email', value)}
-              onBlur={handleSave}
-            />
-          ) : (
-            <>
-              <Text style={styles.text}>{email}</Text>
-              <TouchableOpacity onPress={() => handleEdit('email')}>
-                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-        <View style={styles.info}>
-          <FontAwesome name="phone" size={20} color="#374151" style={styles.icon} />
-          {editingField === 'phone' ? (
-            <TextInput
-              style={styles.input}
-              value={phone}
-              keyboardType="phone-pad"
-              onChangeText={(value) => handleInputChange('phone', value)}
-              onBlur={handleSave}
-            />
-          ) : (
-            <>
-              <Text style={styles.text}>{phone}</Text>
-              <TouchableOpacity onPress={() => handleEdit('phone')}>
-                <FontAwesome name="edit" size={20} color="#374151" style={styles.editIcon} />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-        <View style={styles.info}>
-          <TouchableOpacity onPress={handleLogout}>
-            <FontAwesome name="sign-out" size={20} color="#374151" style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleLogout}>
-            <Text style={styles.text}>Log Out</Text>
-          </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={styles.info}>
+        <Text style={styles.personal}>Personal information</Text>
+        <View style={styles.horizontalLine} />
+        <View style={styles.userInfo}>
+          <View style={styles.userInfoItem}>
+            <Text style={styles.label}>Name:</Text>
+            <Text style={styles.value}>{user.name}</Text>
+          </View>
+          <View style={styles.userInfoItem}>
+            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.value}>{user.email}</Text>
+          </View>
+          <View style={styles.userInfoItem}>
+            <Text style={styles.label}>Phone:</Text>
+            <Text style={styles.value}>{user.rib}</Text>
+          </View>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -233,58 +52,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EFF2F4',
-    paddingHorizontal: width * 0.05,
-    paddingBottom: height * 0.05,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EFF2F4',
-  },
-  infoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    justifyContent: 'space-around',
+    backgroundColor: '#fff',
+    padding: width * 0.05, 
   },
   info: {
-    flexDirection: 'row',
+    backgroundColor: 'rgba(4, 37, 82, 0.2)',
+    borderRadius: width * 0.1,
+    width: '90%',
+    height: '65%',
+  },
+  personal: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: width * 0.04, 
+    marginTop: height * 0.02, 
+    color:"#042552",
+  },
+  horizontalLine: {
+    borderBottomWidth: 1, 
+    borderBottomColor: 'white', 
+    width: '80%', 
+    marginLeft:35,
+    marginTop:10
+  },
+  userInfo: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+  },
+  userInfoItem: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    alignItems: 'center',
     paddingHorizontal: width * 0.05,
-    marginBottom: height * 0.05,
-  },
-  text: {
-    color: '#374151',
-    fontSize: 18,
-  },
-  input: {
+    paddingVertical: height * 0.02,
     borderBottomWidth: 1,
-    borderBottomColor: '#374151',
+    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
     width: '100%',
-    padding: 5,
   },
-  icon: {
-    marginRight: 10,
+  label: {
+    color: '#fff',
+    fontSize: width * 0.035,
   },
-  editIcon: {
-    marginLeft: 10,
-  },
-  image: {
-    width: width * 0.3,
-    height: width * 0.3,
-    borderRadius: width * 0.15,
-  },
-  cameraIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    padding: 5,
-    borderRadius: 50,
+  value: {
+    color: '#fff',
+    fontSize: width * 0.035,
+    fontWeight: 'bold',
   },
 });
 

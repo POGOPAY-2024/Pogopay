@@ -1,182 +1,150 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-
-const Login = () => {
-    const navigation = useNavigation();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [hidePassword, setHidePassword] = useState(true);
-
-    const togglePasswordVisibility = () => {
-        setHidePassword(!hidePassword);
-    };
-    const handleSignInPress = async () => {
-        try {
-            const response = await axios.post('https://f817-105-189-9-91.ngrok-free.app/api/login', {
-                email,
-                password,
-            });
-    
-            if (response.status === 200) {
-                const token = response.data.token;
-                await AsyncStorage.setItem('token', JSON.stringify(token)); // Stocker le jeton en tant que chaîne
-                Alert.alert('Succès', 'Connexion réussie');
-                navigation.navigate('home');
-            } else {
-                Alert.alert('Erreur', 'Une erreur est survenue');
-            }
-        } catch (error) {
-            console.error(error);
-            if (error.response) {
-                Alert.alert('Erreur', `Erreur de réponse : ${error.response.data.error}`);
-            } else if (error.request) {
-                Alert.alert('Erreur', 'Erreur de requête : Aucune réponse du serveur');
-            } else {
-                Alert.alert('Erreur', `Erreur de configuration de la requête : ${error.message}`);
-            }
-        }
-    };
-    
-    
-    const handleSignUpPress = () => {
-        navigation.navigate('Signup');
-    };
-
-    const handleForgotInPress = () => {
-        navigation.navigate('Forgot');
-    };
-
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Log In</Text>
-            <Image style={styles.image} source={require('../assets/login.jpg')} />
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    onChangeText={text => setEmail(text)}
-                    accessibilityLabel="Enter your email"
-                />
-                <View style={styles.passwordInputContainer}>
-                    <TextInput
-                        style={[styles.input, styles.passwordInput]}
-                        placeholder="Password"
-                        autoCapitalize="none"
-                        secureTextEntry={hidePassword}
-                        onChangeText={text => setPassword(text)}
-                    />
-                    <TouchableOpacity
-                        style={styles.icon}
-                        onPress={togglePasswordVisibility}
-                    >
-                        <Icon
-                            name={hidePassword ? 'eye-slash' : 'eye'}
-                            size={20}
-                            color="#000"
-                        />
-                    </TouchableOpacity>
-                </View>
-                <TouchableOpacity style={styles.forgotPasswordLinkContainer} onPress={handleForgotInPress}>
-                    <Text style={styles.forgotPasswordLink}>Forgot password?</Text>
-                </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.button} onPress={handleSignInPress}>
-                <Text style={styles.buttonText}>Log In</Text>
-            </TouchableOpacity>
-            <Text style={styles.bottomText}>
-                Don't have an account? 
-                <TouchableOpacity onPress={handleSignUpPress}>
-                    <Text style={styles.signupLink}>Sign up</Text> 
-                </TouchableOpacity> 
-            </Text>
-        </View>
-    );
-};
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import instance from "../axiosConfig";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
+
+const Login = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleEmailFocus = () => {
+    setEmailFocused(true);
+  };
+
+  const handleEmailBlur = () => {
+    if (!email.trim()) {
+      setEmailFocused(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      if (!email.trim() || !password.trim()) {
+        Alert.alert('Error', 'Please enter both email and password');
+        return;
+      }
+  
+      setLoading(true);
+  
+      const response = await instance.post('/login', { email, password });
+  
+      if (response.data && response.data.token) {
+        await AsyncStorage.setItem('userToken', JSON.stringify(response.data.token));
+        await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+  
+        setEmail('');
+        setPassword('');
+  
+        navigation.navigate('home');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      console.error('Login failed:', error.message);
+      Alert.alert('Error', 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -height * 0.1} // Adjust this value as needed
+    >
+      <View style={[styles.inputContainer, emailFocused && styles.emailInputFocused]}>
+        <Text style={styles.connexion}>Connexion</Text>
+        <Text style={styles.text}>C'est notre grand plaisir de vous avoir ici</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          onFocus={handleEmailFocus}
+          placeholderTextColor="#042552"
+          onBlur={handleEmailBlur}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          placeholderTextColor="#042552" 
+          secureTextEntry
+        />
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text style={styles.buttonText}>Sign in</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
+
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#FFFFFF',
-        flex: 1,
-        alignItems: 'center',
-        padding: width * 0.05,
-    },
-    text: {
-        fontWeight: 'bold',
-        fontSize: width * 0.06, // Responsive font size
-        color: '#011A51',
-        marginTop: height * 0.05,
-    },
-    image: {
-        width: '60%',
-        height: height * 0.25, // Responsive height
-        marginTop: height * 0.05,
-        resizeMode: 'contain', // Ensure image aspect ratio is maintained
-    },
-    inputContainer: {
-        width: '100%',
-        marginBottom: height * 0.05,
-    },
-    input: {
-        width: '100%',
-        height: height * 0.06, // Responsive height
-        borderWidth: 1,
-        borderColor: '#042552',
-        borderRadius: 10,
-        paddingLeft: width * 0.05, // Responsive padding
-        marginBottom: height * 0.025, // Responsive margin
-    },
-    forgotPasswordLinkContainer: {
-        alignSelf: 'flex-end',
-    },
-    forgotPasswordLink: {
-        color: '#FB847C',
-        textDecorationLine: 'underline',
-        fontSize: width * 0.035, // Responsive font size
-        top: '-68%', // Center vertically within the input field
-    },
-    button: {
-        width: '100%',
-        height: height * 0.07, // Responsive height
-        backgroundColor: '#03D3B9',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 10,
-        marginTop: height * 0.025, // Responsive margin
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: width * 0.045, // Responsive font size
-        fontWeight: 'bold',
-    },
-    bottomText: {
-        marginTop: height * 0.025, // Responsive margin
-        fontSize: width * 0.035, // Responsive font size
-        color: '#727E96',
-    },
-    signupLink: {
-        color: '#FB847C',
-        textDecorationLine: 'underline',
-    },
-    passwordInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    passwordInput: {
-        paddingRight: width * 0.1, // Responsive padding
-    },
-    icon: {
-        position: 'absolute',
-        right: width * 0.05, // Responsive positioning
-        top: '38%', // Center vertically within the input field
-        transform: [{ translateY: -10 }],
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+  },
+  text: {
+    fontSize: width * 0.03,
+    color:"#042552",
+    marginBottom: height * 0.02,
+  },
+  inputContainer: {
+    width: width * 0.9,
+    paddingTop: height * 0.05,
+    paddingRight: width * 0.06,
+    paddingBottom: height * 0.06,
+    paddingLeft: width * 0.06,
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: height * 0.02,
+    borderWidth: 1,
+    borderColor: '#042552',
+    borderRadius: width * 0.1,
+  },
+  input: {
+    width: '100%',
+    height: height * 0.06,
+    borderWidth: 1,
+    borderColor: '#042552',
+    borderRadius: width * 0.03,
+    paddingLeft: width * 0.05,
+    backgroundColor:'white',
+    marginBottom: height * 0.02,
+  },
+  connexion: {
+    fontWeight:'bold',
+    fontSize: width * 0.06,
+    color:"#042552",
+    marginBottom: height * 0.01,
+  },
+  button: {
+    width: '100%',
+    height: height * 0.06,
+    backgroundColor: '#042552',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: width * 0.03,
+  },
+  buttonText: {
+    color:"white",
+    fontSize: width * 0.05,
+    fontWeight:'bold',
+  }
 });
 
 export default Login;

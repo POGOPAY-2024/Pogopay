@@ -23,7 +23,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'required|string|max:15|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'rib' => 'required|string|max:23|unique:users', 
+            'rib' => 'required|string|max:23|unique:users',
         ]);
 
         if ($validator->fails()) {
@@ -53,29 +53,47 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        // $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('Personal Access Token')->accessToken;
+        // if (Auth::attempt($credentials)) {
+        //     $user = Auth::user();
+        //     $token = $user->createToken('Personal Access Token')->accessToken;
 
-            return response()->json(['token' => $token], 200);
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        //     return response()->json(['token' => $token], 200);
+        // } else {
+        //     return response()->json(['error' => 'Unauthorized'], 401);
+        // }
+
+
+
+
+
+    $credentials = $request->only('email', 'password');
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json(['token' => $token, 'user' => $user], 200);
     }
+    return response()->json(['message' => 'Unauthorized'], 401);
+}
+
+
 
     /**
      * Logout the user (Revoke the token).
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout()
+    public function logout(Request $request)
     {
-        $user = Auth::user()->token();
-        $user->revoke();
+        // $user = Auth::user()->token();
+        // $user->revoke();
 
-        return response()->json(['message' => 'Successfully logged out'], 200);
+        // return response()->json(['message' => 'Successfully logged out'], 200);
+
+
+        $request->user()->tokens()->delete();
+        return response()->json(['message' => 'Logged out'], 200);
     }
 
     /**
@@ -83,8 +101,9 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function user()
+    public function createToken(Request $request)
     {
-        return response()->json(Auth::user(), 200);
+        $token = $request->user()->createToken('auth_token')->plainTextToken;
+        return response()->json(['token' => $token], 200);
     }
 }

@@ -1,46 +1,50 @@
-import React from 'react';
-import { View, StyleSheet, Image, Dimensions, TouchableOpacity, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, Dimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import instance from "../axiosConfig"; // Import Axios instance
 
 const CodeQr = () => {
-  // User details (replace with actual data)
-  const userDetails = {
-    username: 'khaoula', // Replace with actual username
-    rib: '123456789012345678901234', // Replace with actual RIB
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await instance.post('/generate-qr-code'); // Adjust the endpoint as per your API
+      const { name, rib } = response.data; // Destructure the response data to extract name and rib
+      setUserData({ name, rib });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Handle error fetching user data
+    }
   };
-
-  // Generate QR code data
-  const qrData = JSON.stringify(userDetails);
-
- 
 
   return (
     <View style={styles.container}>
-     
-
-      <View style={styles.card}>
-        <QRCode value={qrData} size={200} style={styles.codeqr} />
-      </View>
-      <Text style={styles.codeText}>Scan this QR code</Text>
-
-      
+      {userData ? (
+        <View style={styles.card}>
+          <QRCode
+            value={JSON.stringify({ name: userData.name, rib: userData.rib })}
+            size={200}
+          />
+          <Text style={styles.codeText}>Scan this QR code</Text>
+        </View>
+      ) : (
+        <Text>Loading.</Text>
+      )}
     </View>
   );
 };
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 30,
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#042552',
   },
   card: {
     backgroundColor: 'white',
@@ -57,30 +61,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginBottom: height * 0.05,
   },
-  image: {
-    width: width * 0.3,
-    height: width * 0.3,
-    borderRadius: (width * 0.3) / 2,
-    marginBottom: height * 0.06,
-  },
-  codeqr: {
-   
-  },
   codeText: {
     marginTop: 10,
     fontSize: 16,
     textAlign: 'center',
-  },
-  scanButton: {
-    marginTop: 20, 
-    backgroundColor: '#03D3B9',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  scanButtonText: {
-    color: 'white',
-    fontSize: 16,
   },
 });
 

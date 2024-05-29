@@ -28,6 +28,9 @@ import AddCard from './screens/AddCard';
 import Scan from './screens/Scan';
 import Confirmation from './screens/Confirmation';
 //import PasswordSecurity from './screens/Passwordsecurity';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs();
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();

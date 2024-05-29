@@ -54,7 +54,8 @@ const HomeScreen = () => {
                     onPress={handleForgotInPress}
                     
                 >
-                    <Text style={styles.buttonText}>QR Code</Text>
+                    
+                    <Text style={styles.buttonText}>Generate QR Code</Text>
                 </TouchableOpacity>
 
                 {/* Scan QR Code Button */}
@@ -95,13 +96,7 @@ const styles = StyleSheet.create({
         fontSize: width * 0.04, // Responsive font size
         marginBottom: height * 0.005, // Responsive margin bottom
     },
-    logo: {
-        width: width * 0.45, // Responsive width
-        height: height * 0.25, // Responsive height
-        marginBottom: -height * 0.0125, // Responsive margin bottom
-        marginTop: -height * 0.0875, // Responsive margin top
-        top: -height * 0.125, // Responsive top positioning
-    },
+  
     buttonContainer: {
         flexDirection: 'row', // Arrange buttons in a row
         justifyContent: 'space-between', // Distribute space between buttons
