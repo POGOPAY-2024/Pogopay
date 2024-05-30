@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Endroid\QrCode\QrCode;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Models\Card; // Assurez-vous que ce modèle existe et est configuré
+use App\Models\Card; 
 use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
@@ -27,11 +27,12 @@ class PaymentController extends Controller
 
     public function addCard(Request $request)
     {
+dd($request->all());    
         $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id', // Valide que user_id existe dans la table users
+            'user_id' => 'required|exists:users,id', 
             'card_number' => 'required|string|max:19',
             'expiry_date' => 'required',
-            'cvv' => 'required|string|max:45', // Correction : Changement de max:40 à max:4 pour le CVV
+            'cvv' => 'required|string|max:4', 
         ]);
     
         $card = Card::create([
@@ -41,9 +42,9 @@ class PaymentController extends Controller
             'cvv' => $validatedData['cvv'],
         ]);
     
-        // Return a JSON response with the created card and status code 201
         return response()->json($card, 201);
     }
+    
     
     public function getCards($iduser)
     {
@@ -58,7 +59,6 @@ class PaymentController extends Controller
         return response()->json($cards);
     }
     
-    // Méthode pour générer le QR code
     public function generateQrCode(Request $request)
     {    
         $user = Auth::user();
@@ -76,19 +76,20 @@ class PaymentController extends Controller
         return response($qrCode->writeString(), 200)->header('Content-Type', 'image/png');
     }
 
-    //  pour traiter le QR code scanné
-    public function scanQrCode(Request $request)
-    {
-        $qrData = json_decode($request->input('qr_data'), true);
+    //   traiter le QR code scanné
+public function scanQrCode(Request $request)
+{
+    $qrData = json_decode($request->input('qr_data'), true);
 
-        $recipientRib = $qrData['recipient_rib'] ?? null;
+    $recipientRib = $qrData['rib'] ?? null;
+    $accountName = $qrData['accountName'] ?? null;
 
-        if ($recipientRib) {
-            return response()->json(['recipient_rib' => $recipientRib]);
-        } else {
-            return response()->json(['error' => 'Recipient RIB not found in QR data'], 400);
-        }
+    if ($recipientRib && $accountName) {
+        return response()->json(['rib' => $recipientRib, 'accountName' => $accountName]);
+    } else {
+        return response()->json(['error' => 'Recipient RIB or account name not found in QR data'], 400);
     }
+}
 
     // Process payment via CMI API
     public function processPayment(Request $request)
@@ -104,7 +105,7 @@ class PaymentController extends Controller
         $recipientRib = $validatedData['recipient_rib'];
 
         $user = Auth::user();
-        $card = Card::where('user_id', $user->id)->first(); // Suppose que chaque utilisateur a une carte par défaut. Ajustez selon vos besoins.
+        $card = Card::where('user_id', $user->id)->first(); 
 
         if (!$card) {
             return response()->json(['status' => 'error', 'message' => 'No card found for user'], 400);
@@ -178,7 +179,7 @@ class PaymentController extends Controller
         return new SimpleXMLElement($response->getBody()->getContents());
     }
 
-    // Méthode pour récupérer l'historique des transactions
+    // récupérer l'historique des transactions
     public function transactionHistory(Request $request)
     {
         $userId = Auth::id();
@@ -193,7 +194,7 @@ class PaymentController extends Controller
         return response()->json($user);
     }
 
-    // Method to update user profile
+    //update user profile
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
