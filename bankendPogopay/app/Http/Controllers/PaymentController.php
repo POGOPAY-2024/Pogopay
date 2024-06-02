@@ -67,22 +67,26 @@ $output->writeln("<info>$var</info>");
         return response()->json($cards);
     }
     
-    public function generateQrCode()
-    {    
-        $user = Auth::user();
+    public function generateQrCode($iduser)
+    {
+        $user = User::find($iduser);
+        $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+  $output->writeln("<info>$user</info>") ;
         
+
         $rib = $user->rib;
-        $name= $user->$name;
+        $name = $user->name;
 
         $qrData = [
             'rib' => $rib,
-            'name'=>$name,
+            'name' => $name,
         ];
 
-        $qrCode = new QrCode(json_encode($qrData));
+        $qrCode = QrCode::format('png')->generate(json_encode($qrData));
 
-        return response($qrCode->writeString(), 200)->header('Content-Type', 'image/png');
+        return response($qrCode, 200)->header('Content-Type', 'image/png');
     }
+
 
     //   traiter le QR code scanné
 public function scanQrCode(Request $request)

@@ -41,7 +41,10 @@ const CodeQr = () => {
       const response = await axios.get(`http://192.168.1.125:8000/api/generate-qr-code/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log(response.data);
+
       if (response.status === 200) {
+        
         setUserData(response.data);      } else {
         console.error('Error fetching card data 1:', response.data);
         Alert.alert('Error', 'Failed to fetch card ');
