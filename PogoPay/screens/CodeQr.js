@@ -32,26 +32,9 @@ const CodeQr = () => {
       
     } catch (error) {
       console.error('Error fetching user data:', error.message);
-      Alert.alert('Error', 'Failed to fetch data. Please try again.');
-    }
-  };
-
-  const fetchQRData = async (userId, token) => {
-    try {
-      const response = await axios.get(`http://192.168.1.125:8000/api/generate-qr-code/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      console.log(response.data);
-
-      if (response.status === 200) {
-        
-        setUserData(response.data);      } else {
-        console.error('Error fetching card data 1:', response.data);
-        Alert.alert('Error', 'Failed to fetch card ');
-      }
-    } catch (error) {
-      console.error('Error fetching card data:', error.message);
-      Alert.alert('Error', 'Failed to fetch card data');
+      setError('Failed to fetch user data. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
   return (
