@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importez AsyncStorage
-import instance from '../axiosConfig'; // Importez votre instance Axios configurée
+import axios from 'axios'; // Importez axios
 
 const AddCard = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [cvv, setCVV] = useState('');
   const [user, setUser] = useState({});
+  const [token, setToken] = useState('');
 
   useEffect(() => {
     fetchUserAndData();
@@ -16,6 +17,9 @@ const AddCard = () => {
   const fetchUserAndData = async () => {
     try {
       const userDataJson = await AsyncStorage.getItem('userData');
+      const tk = await AsyncStorage.getItem('userToken');
+      console.log(tk);
+      setToken(tk);
       if (userDataJson !== null) {
         const user = JSON.parse(userDataJson);
         setUser(user);
@@ -35,11 +39,13 @@ const AddCard = () => {
         return;
       }
   
-      const response = await instance.post('/add-card', {
-        user_id: user.id, // Utilisez user.id au lieu de 'use_id=user.id'
+      const response = await axios.post('http://192.168.1.126:8000/api/add-card', {
+        user_id: user.id, 
         card_number: cardNumber,
         expiry_date: expirationDate,
         cvv: cvv,
+      },{
+        headers: { Authorization: `Bearer ${token}` }
       });
   
       if (response.status === 201) {
@@ -58,7 +64,6 @@ const AddCard = () => {
       Alert.alert('Error', 'Failed to add card');
     }
   };
-  
 
   return (
     <View style={styles.container}>

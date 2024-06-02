@@ -22,7 +22,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/add-card', [PaymentController::class, 'addCard']);
-    Route::post('/generate-qr-code', [PaymentController::class, 'generateQrCode']);
+    Route::get('/generate-qr-code', [PaymentController::class, 'generateQrCode']);
     Route::post('/scan-qr-code', [PaymentController::class, 'scanQrCode']);
     Route::post('/process-payment', [PaymentController::class, 'processPayment']);
     Route::get('/transaction-history', [PaymentController::class, 'transactionHistory']);

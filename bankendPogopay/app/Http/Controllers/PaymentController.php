@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use SimpleXMLElement;
@@ -27,7 +28,14 @@ class PaymentController extends Controller
 
     public function addCard(Request $request)
     {
-dd($request->all());    
+        $header = $request->header('Authorization');
+       print($header);
+       $var='test tokn';
+       $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+$output->writeln("<info>$header</info>");
+$output->writeln("<info>$var</info>");
+
+//dd($request->all());    
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id', 
             'card_number' => 'required|string|max:19',
@@ -59,16 +67,16 @@ dd($request->all());
         return response()->json($cards);
     }
     
-    public function generateQrCode(Request $request)
+    public function generateQrCode()
     {    
         $user = Auth::user();
         
         $rib = $user->rib;
-        $fullname= $user->$name;
+        $name= $user->$name;
 
         $qrData = [
-            'recipient_rib' => $rib,
-            'fullname'=>$fullname,
+            'rib' => $rib,
+            'name'=>$name,
         ];
 
         $qrCode = new QrCode(json_encode($qrData));
