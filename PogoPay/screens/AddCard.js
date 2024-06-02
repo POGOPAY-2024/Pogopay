@@ -39,7 +39,7 @@ const AddCard = () => {
         return;
       }
   
-      const response = await axios.post('http://192.168.1.126:8000/api/add-card', {
+      const response = await axios.post('http://192.168.1.124:8000/api/add-card', {
         user_id: user.id, 
         card_number: cardNumber,
         expiry_date: expirationDate,

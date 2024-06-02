@@ -19,9 +19,9 @@ use App\Http\Controllers\AuthController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/add-card', [PaymentController::class, 'addCard']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/add-card', [PaymentController::class, 'addCard']);
     Route::get('/generate-qr-code', [PaymentController::class, 'generateQrCode']);
     Route::post('/scan-qr-code', [PaymentController::class, 'scanQrCode']);
     Route::post('/process-payment', [PaymentController::class, 'processPayment']);
