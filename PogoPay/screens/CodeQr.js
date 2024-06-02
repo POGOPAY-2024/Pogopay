@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, Alert } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import instance from '../axiosConfig'; // Import Axios instance
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'; // Assurez-vous d'importer axios
 
 const CodeQr = () => {
   const [userData, setUserData] = useState(null);
+  const [token, setToken] = useState('');
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     fetchUserData();
@@ -13,19 +15,42 @@ const CodeQr = () => {
 
   const fetchUserData = async () => {
     try {
-      const token = await AsyncStorage.getItem('userToken'); 
-      const response = await instance.get('/generate-qr-code', {
-        headers: {
-          Authorization: `Bearer ${token}` 
-        }
-      });
-      const { name, rib } = response.data;
-      setUserData({ name, rib });
+      const userDataJson = await AsyncStorage.getItem('userData');
+      const tk = await AsyncStorage.getItem('userToken');
+      setToken(tk);
+      if (userDataJson !== null) {
+        const user = JSON.parse(userDataJson);
+        setUser(user);
+        const userId=user.id;
+        fetchQRData(userId, tk);
+       
+      } else {
+        console.log('userData is null');
+      }
+     
+      
+      
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error fetching user data:', error.message);
+      Alert.alert('Error', 'Failed to fetch data. Please try again.');
     }
   };
 
+  const fetchQRData = async (userId, token) => {
+    try {
+      const response = await axios.get(`http://192.168.1.125:8000/api/generate-qr-code/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setUserData(response.data);      } else {
+        console.error('Error fetching card data 1:', response.data);
+        Alert.alert('Error', 'Failed to fetch card ');
+      }
+    } catch (error) {
+      console.error('Error fetching card data:', error.message);
+      Alert.alert('Error', 'Failed to fetch card data');
+    }
+  };
   return (
     <View style={styles.container}>
       {userData ? (
