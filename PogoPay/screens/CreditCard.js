@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importez AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import instance from '../axiosConfig'; // Importez votre instance Axios configurée
+import axios from 'axios'; // Importez votre instance Axios configurée
 
 const CreditCard = () => {
   const navigation = useNavigation();
   const [cardData, setCardData] = useState([]);
+  const [token, setToken] = useState('');
 
   useEffect(() => {
     fetchUserAndData();
@@ -15,9 +16,11 @@ const CreditCard = () => {
   const fetchUserAndData = async () => {
     try {
       const userDataJson = await AsyncStorage.getItem('userData');
+      const tk = await AsyncStorage.getItem('userToken');
+      setToken(tk);
       if (userDataJson !== null) {
         const user = JSON.parse(userDataJson);
-        await fetchCardData(user.id);
+        await fetchCardData(user.id, tk);
       } else {
         console.log('userData is null');
       }
@@ -27,20 +30,26 @@ const CreditCard = () => {
     }
   };
 
-  const fetchCardData = async (userId) => {
+  const fetchCardData = async (userId, token) => {
     try {
-      const response = await instance.get(`/get-cards/${userId}`);
-      setCardData(response.data.data);
+      const response = await axios.get(`http://192.168.1.125:8000/api/get-cards/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setCardData(response.data);
+      } else {
+        console.error('Error fetching card data:', response.data);
+        Alert.alert('Error', 'Failed to fetch card data');
+      }
     } catch (error) {
-      console.error('Error fetching cards:', error.message);
-      Alert.alert('Error', 'Failed to fetch cards. Please try again.');
-    } 
+      console.error('Error fetching card data:', error.message);
+      Alert.alert('Error', 'Failed to fetch card data');
+    }
   };
 
   const handleAddCard = () => {
     navigation.navigate('AddCard');
   };
-
   return (
     <View style={styles.container}>
       <ScrollView style={styles.cardList}>
