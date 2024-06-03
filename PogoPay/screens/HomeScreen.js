@@ -1,132 +1,171 @@
-import React from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Text,Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 
-const CreditCard = ({ cardNumber, cardHolder, expirationDate, balance }) => {
+
+const HomeScreen = ({navigation}) => {
+
+
+
+   const [cards, setCards] = useState([
+    { id: '1', card_number: '1234 5678 9012 3456', expiry_date: '12/24', cvv: '123' },
+  ]);
+
+  const handleDeleteCard = (id) => {
+    setCards(cards.filter((card) => card.id !== id));
+  };
+
+  const handleForgotInPress = () => {
+    navigation.navigate('CodeQr');
+  };
+
+  const handleScanQr = () => {
+    navigation.navigate('Scan');
+  };
+
+
+
   return (
-      <View style={styles.cardContainer}>
-          <View style={styles.infoRow}>
-              {/* <Icon name="money" size={24} color="white" /> */}
-              <Text style={styles.balanceText}>credit card: default</Text>
-          </View>
-       
-      </View>
-  );
-};
-
-const HomeScreen = () => {
-    const navigation = useNavigation();
-    const activeCard = {
-        cardNumber: '1234567812345678',
-        cardHolder: 'John Doe',
-        expirationDate: '12/24'
-    };
-    const handleForgotInPress = () => {
-        navigation.navigate('CodeQr');
-    };
-    const handleScanQr = () => {
-        navigation.navigate('Scan');
-    };
-
-    return (
-        <View style={styles.container}>
-            {/* Active Credit Card */}
-            <CreditCard
-                cardNumber={activeCard.cardNumber}
-                cardHolder={activeCard.cardHolder}
-                expirationDate={activeCard.expirationDate}
-            />
-
-            {/* Logo */}
-            {/* <Image
-                source={require('../assets/pogo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-            /> */}
-
-            {/* Button Container */}
-            <View style={styles.buttonContainer}>
-
-                {/* QR Code Button */}
-                <TouchableOpacity
-                    style={[styles.button, styles.primaryButton]}
-                    onPress={handleForgotInPress}
-                    
-                >
-                    
-                    <Text style={styles.buttonText}>Generate QR Code</Text>
-                </TouchableOpacity>
-
-                {/* Scan QR Code Button */}
-                <TouchableOpacity
-                    style={[styles.button, styles.secondaryButton]}
-                   onPress={handleScanQr}
-                >
-                    <Text style={styles.buttonText}>Scan QR Code</Text>
-                </TouchableOpacity>
-
+    <View style={styles.container}>
+    
+      <ScrollView style={styles.cardList}>
+        {cards.map((card) => (
+          <View key={card.id} style={styles.cardItem}>
+            <View style={styles.cardInfoContainer}>
+              <Text style={styles.cardNumber}>{card.card_number}</Text>
+              <Text style={styles.cardInfo}>Expires: {card.expiry_date}</Text>
+              <Text style={styles.cardInfo}>CVV: {card.cvv}</Text>
             </View>
-        </View>
-    );
+            <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDeleteCard(card.id)}>
+              <FontAwesomeIcon icon={faTrash} size={24} color="red" />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Button Container */}
+      <View style={styles.buttonContainer}>
+        {/* QR Code Button */}
+        <TouchableOpacity
+          style={[styles.button, styles.primaryButton]}
+          onPress={handleForgotInPress}
+        >
+          <Text style={styles.buttonText}>Generate QR Code</Text>
+        </TouchableOpacity>
+
+        {/* Scan QR Code Button */}
+        <TouchableOpacity
+          style={[styles.button, styles.secondaryButton]}
+          onPress={handleScanQr}
+        >
+          <Text style={styles.buttonText}>Scan QR Code</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 };
 
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: width * 0.05, // Responsive padding
-        paddingTop: height * 0.05, // Responsive padding top
-    },
-    cardContainer: {
-        width: '100%',
-        backgroundColor: '#011A51',
-        borderRadius: 10,
-        padding: width * 0.05, // Responsive padding
-        marginBottom: height * 0.025, // Responsive margin bottom
-        alignItems: 'center',
-        height: height * 0.1, // Responsive height
-        top: -height * 0.33, // Responsive top positioning
-    },
-    cardText: {
-        color: 'white',
-        fontSize: width * 0.04, // Responsive font size
-        marginBottom: height * 0.005, // Responsive margin bottom
-    },
-  
-    buttonContainer: {
-        flexDirection: 'row', // Arrange buttons in a row
-        justifyContent: 'space-between', // Distribute space between buttons
-        width: '100%',
-        top: -height * 0.125, // Responsive top positioning
-        height: height * 0.09, // Responsive height
-    },
-    button: {
-        flex: 1, // Each button takes up equal space
-        paddingVertical: height * 0.01875, // Responsive padding vertical
-        borderRadius: 10,
-        marginHorizontal: width * 0.0125, // Responsive margin horizontal
-    },
-    primaryButton: {
-        backgroundColor: '#03D3B9',
-    },
-    secondaryButton: {
-        backgroundColor: '#011A51',
-    },
-    buttonText: {
-        fontSize: width * 0.045, // Responsive font size
-        fontWeight: 'bold',
-        textAlign: 'center',
-        color: 'white',
-        top: height * 0.0075, // Responsive top positioning
-    },
-    balanceText: {
-        color: 'white',
-        fontSize: width * 0.04, // Responsive font size
-    },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: width * 0.05, // Responsive padding
+    paddingTop: height * 0.05, // Responsive padding top
+    backgroundColor:'white'
+  },
+  cardContainer: {
+    width: width * 0.9, // Responsive width
+    height: height * 0.20, // Responsive height
+    backgroundColor: '#011A51',
+    borderRadius: 10,
+    padding: width * 0.05, // Responsive padding
+    marginBottom: height * 0.025, // Responsive margin bottom
+    justifyContent: 'space-between',
+  },
+  cardList: {
+    flex: 1,
+  },
+  cardItem: {
+    backgroundColor: '#011A51',
+    borderRadius: 10,
+    padding: width * 0.05,
+    marginBottom: height * 0.025,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardInfoContainer: {
+    flex: 1,
+  },
+  cardNumber: {
+    color: 'white',
+    fontSize: width * 0.04,
+    marginBottom: height * 0.01,
+    fontWeight: 'bold',
+  },
+  cardInfo: {
+    color: 'white',
+    fontSize: width * 0.04,
+    marginBottom: height * 0.01,
+  },
+  deleteIcon: {
+    padding: width * 0.02,
+  },
+
+  cardDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cardText: {
+    color: 'white',
+    fontSize: width * 0.04, // Responsive font size
+  },
+  cardList: {
+    flex: 1,
+    width: '100%',
+  },
+  cardListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: height * 0.025, // Responsive margin bottom
+  },
+  deleteButton: {
+    paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row', // Arrange buttons in a row
+    justifyContent: 'space-between', // Distribute space between buttons
+    width: '100%',
+    marginTop: height * 0.05, // Adjust margin top for better spacing
+    top:-330
+  },
+  button: {
+    flex: 1, // Each button takes up equal space
+    paddingVertical: height * 0.02, // Responsive padding vertical
+    borderRadius: 10,
+    marginHorizontal: width * 0.025, // Responsive margin horizontal
+    alignItems: 'center', // Center text within buttons
+    justifyContent: 'center', // Center text within buttons
+  },
+  primaryButton: {
+    backgroundColor: '#03D3B9',
+  },
+  secondaryButton: {
+    backgroundColor: '#011A51',
+  },
+  buttonText: {
+    fontSize: width * 0.045, // Responsive font size
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: 'white',
+  },
 });
 
 export default HomeScreen;

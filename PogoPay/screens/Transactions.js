@@ -46,7 +46,7 @@ const TransactionsHistory = () => {
 
   const fetchTransactionData = async (userId) => {
     try {
-      const response = await axios.get(`http://192.168.1.131:8001/api/transaction-history/${userId}`, {
+      const response = await axios.get(`http://192.168.1.131:8000/api/transaction-history/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200) {
