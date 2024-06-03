@@ -46,7 +46,7 @@ const TransactionsHistory = () => {
 
   const fetchTransactionData = async (userId) => {
     try {
-      const response = await axios.get(`http://192.168.1.131:8000/api/transaction-history/${userId}`, {
+      const response = await axios.get(`http://192.168.1.131:8001/api/transaction-history/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200) {
@@ -69,7 +69,7 @@ const TransactionsHistory = () => {
           <View style={styles.card}>
             <FontAwesome name="exchange" size={Dimensions.get('window').width * 0.05} color="#FB847C" style={styles.icon} />
             <View style={styles.transactionDetails}>
-              <Text style={styles.transactionDate}>{new Date(item.created_at).toLocaleDateString()}</Text>
+              <Text style={styles.transactionDate}>{new Date(item.created_at).toLocaleString()}</Text>
             </View>
             <Text style={styles.transactionAmount}>{`${item.amountsansfrais} dh`}</Text>
           </View>

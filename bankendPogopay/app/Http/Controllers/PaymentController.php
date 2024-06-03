@@ -138,7 +138,7 @@ public function scanQrCode(Request $request)
             $output = new \Symfony\Component\Console\Output\ConsoleOutput();
             $output->writeln("<info>$preAuthResponse->Response</info>");
 
-            $output->writeln("<info>$postAuthResponse</info>");
+            //$output->writeln("<info>$postAuthResponse</info>");
         $transaction = Transaction::create([
             'user_id' => $userid, 
             'recipient_rib' => $recipientRib,
