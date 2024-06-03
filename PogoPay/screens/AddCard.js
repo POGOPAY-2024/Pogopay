@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importez AsyncStorage
-import axios from 'axios'; // Importez axios
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const AddCard = () => {
   const [cardNumber, setCardNumber] = useState('');
@@ -9,6 +10,7 @@ const AddCard = () => {
   const [cvv, setCVV] = useState('');
   const [user, setUser] = useState({});
   const [token, setToken] = useState('');
+  const navigation = useNavigation(); 
 
   useEffect(() => {
     fetchUserAndData();
@@ -18,7 +20,6 @@ const AddCard = () => {
     try {
       const userDataJson = await AsyncStorage.getItem('userData');
       const tk = await AsyncStorage.getItem('userToken');
-      console.log(tk);
       setToken(tk);
       if (userDataJson !== null) {
         const user = JSON.parse(userDataJson);
@@ -38,29 +39,23 @@ const AddCard = () => {
         Alert.alert('Error', 'Please fill in all fields');
         return;
       }
-<<<<<<< HEAD
-  
-      const response = await axios.post('http://192.168.1.124:8000/api/add-card', {
-        user_id: user.id, 
-=======
 
       const response = await axios.post('http://192.168.1.131:8000/api/add-card', {
         user_id: user.id,
->>>>>>> 0d7c3b3 (commit)
         card_number: cardNumber,
         expiry_date: expirationDate,
         cvv: cvv,
-      },{
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-  
+
       if (response.status === 201) {
         console.log('Card added successfully:', response.data);
         Alert.alert('Success', 'Card added successfully');
-        
         setCardNumber('');
         setExpirationDate('');
         setCVV('');
+        navigation.goBack(); 
       } else {
         console.error('Error adding card:', response.data);
         Alert.alert('Error', 'Failed to add card');
