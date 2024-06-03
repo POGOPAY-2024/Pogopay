@@ -1,26 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Dimensions, Alert, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios'; // Importez votre instance Axios configurée
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
 
 const CreditCard = () => {
   const navigation = useNavigation();
   const [cardData, setCardData] = useState([]);
   const [token, setToken] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchUserAndData();
+    fetchToken();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserAndData();
+    }, [])
+  );
+
+  const fetchToken = async () => {
+    try {
+      const tk = await AsyncStorage.getItem('userToken');
+      setToken(tk);
+    } catch (error) {
+      console.error('Error fetching token:', error.message);
+      Alert.alert('Error', 'Failed to fetch token. Please try again.');
+    }
+  };
 
   const fetchUserAndData = async () => {
     try {
       const userDataJson = await AsyncStorage.getItem('userData');
-      const tk = await AsyncStorage.getItem('userToken');
-      setToken(tk);
       if (userDataJson !== null) {
         const user = JSON.parse(userDataJson);
-        await fetchCardData(user.id, tk);
+        await fetchCardData(user.id);
       } else {
         console.log('userData is null');
       }
@@ -30,17 +45,9 @@ const CreditCard = () => {
     }
   };
 
-  const fetchCardData = async (userId, token) => {
+  const fetchCardData = async (userId) => {
     try {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const response = await axios.get(`http://192.168.1.125:8000/api/get-cards/${userId}`, {
-=======
-      const response = await axios.get(`http://192.168.1.129:8000/api/get-cards/${userId}`, {
->>>>>>> 0d7c3b3 (commit)
-=======
       const response = await axios.get(`http://192.168.1.131:8000/api/get-cards/${userId}`, {
->>>>>>> 62138f2 (commit)
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200) {
@@ -58,18 +65,25 @@ const CreditCard = () => {
   const handleAddCard = () => {
     navigation.navigate('AddCard');
   };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchUserAndData().finally(() => setRefreshing(false));
+  };
+
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.cardList}>
+      <ScrollView 
+        style={styles.cardList}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {cardData.map((card) => (
           <TouchableOpacity key={card.id} style={styles.cardItem}>
             <Text style={styles.cardNumber}>{card.card_number}</Text>
-            <Text style={styles.cardInfo}>
-              Expires: {card.expiry_date}
-            </Text>
-            <Text style={styles.cardInfo}>
-              CVV: {card.cvv}
-            </Text>
+            <Text style={styles.cardInfo}>Expires: {card.expiry_date}</Text>
+            <Text style={styles.cardInfo}>CVV: {card.cvv}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>

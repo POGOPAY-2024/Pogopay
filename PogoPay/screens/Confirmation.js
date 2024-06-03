@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export default function Confirmation({ route, navigation }) {
   const { qrData, amount, paymentMethod } = route.params;
-<<<<<<< HEAD
-=======
   const [fee, setFee] = useState(0);
   const [totalAmount, setTotalAmount] = useState(amount);
   const [token, setToken] = useState('');
@@ -20,7 +18,6 @@ export default function Confirmation({ route, navigation }) {
     };
     calculateFee();
   }, [amount]);
->>>>>>> 0d7c3b3 (commit)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -69,24 +66,17 @@ export default function Confirmation({ route, navigation }) {
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Transfer Confirmation</Text>
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <View style={styles.detail}>
-          <Text style={styles.label}>Transferred Data:</Text>
-          <Text style={styles.value}>{qrData}</Text>
-        </View>
-=======
-      
->>>>>>> 0d7c3b3 (commit)
-=======
->>>>>>> 62138f2 (commit)
         <View style={styles.detail}>
           <Text style={styles.label}>Amount:</Text>
           <Text style={styles.value}>{amount}</Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.label}>Payment Method:</Text>
-          <Text style={styles.value}>{paymentMethod}</Text>
+          <Text style={styles.label}>Fee:</Text>
+          <Text style={styles.value}>{fee}</Text>
+        </View>
+        <View style={styles.detail}>
+          <Text style={styles.label}>Total Amount:</Text>
+          <Text style={styles.value}>{totalAmount}</Text>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleConfirm}>
           <Text style={styles.buttonText}>Confirm</Text>
@@ -153,4 +143,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
