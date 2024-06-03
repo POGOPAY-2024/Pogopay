@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, Dimensions, Alert } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, ActivityIndicator } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios'; // Assurez-vous d'importer axios
 
 const CodeQr = () => {
   const [userData, setUserData] = useState(null);
-  const [token, setToken] = useState('');
-  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchUserData();
@@ -16,20 +15,13 @@ const CodeQr = () => {
   const fetchUserData = async () => {
     try {
       const userDataJson = await AsyncStorage.getItem('userData');
-      const tk = await AsyncStorage.getItem('userToken');
-      setToken(tk);
       if (userDataJson !== null) {
         const user = JSON.parse(userDataJson);
-        setUser(user);
-        const userId=user.id;
-        fetchQRData(userId, tk);
-       
+        const { name, rib } = user; 
+        setUserData({ name, rib });
       } else {
-        console.log('userData is null');
+        setError('User data not found');
       }
-     
-      
-      
     } catch (error) {
       console.error('Error fetching user data:', error.message);
       setError('Failed to fetch user data. Please try again later.');
@@ -37,18 +29,23 @@ const CodeQr = () => {
       setLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
-      {userData ? (
-        <View style={styles.card}>
-          <QRCode
-            value={JSON.stringify({ name: userData.name, rib: userData.rib })}
-            size={200}
-          />
-          <Text style={styles.codeText}>Scan this QR code</Text>
-        </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#000" />
+      ) : error ? (
+        <Text style={styles.errorText}>{error}</Text>
       ) : (
-        <Text>Loading...</Text>
+        userData && (
+          <View style={styles.card}>
+            <QRCode
+              value={JSON.stringify({ name: userData.name , rib: userData.rib })}
+              size={200}
+            />
+            <Text style={styles.codeText}>Scan this QR code</Text>
+          </View>
+        )
       )}
     </View>
   );
@@ -61,6 +58,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   card: {
     backgroundColor: 'white',
@@ -80,6 +78,11 @@ const styles = StyleSheet.create({
   codeText: {
     marginTop: 10,
     fontSize: 16,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 20,
     textAlign: 'center',
   },
 });
