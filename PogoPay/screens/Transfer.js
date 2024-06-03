@@ -38,7 +38,7 @@ export default function Transfer({ route, navigation }) {
 
   const fetchUserCards = async (userId, token) => {
     try {
-      const response = await axios.get(`http://192.168.1.129:8000/api/getCardsselct/${userId}`, {
+      const response = await axios.get(`http://192.168.1.131:8000/api/getCardsselct/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200) {

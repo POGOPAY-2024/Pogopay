@@ -9,35 +9,47 @@ export default function Confirmation({ route, navigation }) {
 =======
   const [fee, setFee] = useState(0);
   const [totalAmount, setTotalAmount] = useState(amount);
+  const [token, setToken] = useState('');
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     const calculateFee = () => {
       const calculatedFee = amount * 0.05;
       setFee(calculatedFee);
       setTotalAmount(Number(amount) + Number(calculatedFee));
-    
     };
     calculateFee();
-   
-
   }, [amount]);
 >>>>>>> 0d7c3b3 (commit)
 
-  const handleConfirm = async () => {
-    try {
+  useEffect(() => {
+    const fetchUserData = async () => {
       const userDataJson = await AsyncStorage.getItem('userData');
       const tk = await AsyncStorage.getItem('userToken');
-      const user = JSON.parse(userDataJson);
-      
+      if (userDataJson) {
+        const user = JSON.parse(userDataJson);
+        setUser(user);
+      }
+      if (tk) {
+        setToken(tk);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleConfirm = async () => {
+    try {
       const response = await axios.post(
-        'http://192.168.1.129:8000/api/process-payment',
+        'http://192.168.1.131:8000/api/process-payment',
         {
           amountsansfrais: amount,
           amountavecfrais: totalAmount,
           recipient_rib: qrData,
-          card_id: paymentMethod.id,
+          card_id: paymentMethod,
+          user_id: user.id,
         },
-        { headers: { Authorization: `Bearer ${tk}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.status === 'success') {
@@ -58,6 +70,7 @@ export default function Confirmation({ route, navigation }) {
       <View style={styles.card}>
         <Text style={styles.title}>Transfer Confirmation</Text>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <View style={styles.detail}>
           <Text style={styles.label}>Transferred Data:</Text>
           <Text style={styles.value}>{qrData}</Text>
@@ -65,6 +78,8 @@ export default function Confirmation({ route, navigation }) {
 =======
       
 >>>>>>> 0d7c3b3 (commit)
+=======
+>>>>>>> 62138f2 (commit)
         <View style={styles.detail}>
           <Text style={styles.label}>Amount:</Text>
           <Text style={styles.value}>{amount}</Text>

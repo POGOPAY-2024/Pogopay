@@ -44,7 +44,7 @@ const AddCard = () => {
         user_id: user.id, 
 =======
 
-      const response = await axios.post('http://192.168.1.129:8000/api/add-card', {
+      const response = await axios.post('http://192.168.1.131:8000/api/add-card', {
         user_id: user.id,
 >>>>>>> 0d7c3b3 (commit)
         card_number: cardNumber,

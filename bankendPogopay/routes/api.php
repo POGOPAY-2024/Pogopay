@@ -35,10 +35,14 @@ Route::post('/scan-qr-code', [PaymentController::class, 'scanQrCode']);
 
 Route::get('/profile', [PaymentController::class, 'getProfile']);
     Route::put('/profile', [PaymentController::class, 'updateProfile']);
+    Route::get('/transaction-history/{id}', [PaymentController::class, 'transactionHistory']);
 
 Route::middleware('auth:sanctum')->group(function () {
+<<<<<<< HEAD
 >>>>>>> 0d7c3b3 (commit)
     Route::get('/transaction-history', [PaymentController::class, 'transactionHistory']);
+=======
+>>>>>>> 62138f2 (commit)
     
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/token', [AuthController::class, 'createToken'])->middleware('auth:sanctum');

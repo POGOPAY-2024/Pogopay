@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use SimpleXMLElement;
 use GuzzleHttp\Client;
 use Endroid\QrCode\QrCode;
+use Illuminate\Support\Facades\Validator;
+
+
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Card; 
@@ -13,19 +16,11 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
-    private $cmiApiUrl;
-    private $clientId;
-    private $apiName;
-    private $apiPassword;
-
-    public function __construct()
-    {
-        $this->cmiApiUrl = env('CMI_API_URL');
-        $this->clientId = env('CMI_CLIENT_ID');
-        $this->apiName = env('CMI_API_NAME');
-        $this->apiPassword = env('CMI_API_PASSWORD');
-    }
-
+    private $apiName = 'pogo_api';
+    private $apiPassword = 'Pogo_api2022';
+    private $clientId = '600003404';
+    private $cmiApiUrl = 'https://testpayment.cmi.co.ma/fim/api';
+    
     public function addCard(Request $request)
     {
         $header = $request->header('Authorization');
@@ -107,24 +102,29 @@ public function scanQrCode(Request $request)
     }
 }
 
-
     // Process payment via CMI API
     public function processPayment(Request $request)
     {
-        $validatedData = $request->validate([
-            'amountsansfrais' => 'required|numeric',
-            'amountavecfrais' => 'required|numeric',
+        $validator = Validator::make($request->all(), [
+            'amountsansfrais' => 'required|numeric|min:0.01',
+            'amountavecfrais' => 'required|numeric|min:0.01',
             'recipient_rib' => 'required',
-            'card_id' => 'required|integer',
+            'card_id' => 'required',
+            'user_id' => 'required',
         ]);
-
+    
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()], 422);
+        }
+       
+        $validatedData = $validator->validated();
         $amountsansfrais = $validatedData['amountsansfrais'];
         $amountavecfrais = $validatedData['amountavecfrais'];
         $recipientRib = $validatedData['recipient_rib'];
         $cardId = $validatedData['card_id'];
+        $userid = $validatedData['user_id'];
 
-        $user = Auth::user();
-        $card = Card::where('id', $cardId);
+        $card = Card::find($cardId);
 
         if (!$card) {
             return response()->json(['status' => 'error', 'message' => 'No card found for user'], 400);
@@ -132,26 +132,25 @@ public function scanQrCode(Request $request)
 
         $preAuthResponse = $this->sendPaymentRequest('PreAuth', $amountavecfrais, $card->card_number, $card->expiry_date, $card->cvv);
 
-        if ($preAuthResponse->ProcReturnCode == '00') {
             $orderId = $preAuthResponse->OrderId;
             $postAuthResponse = $this->sendPostAuthRequest($orderId);
 
-            if ($postAuthResponse->ProcReturnCode == '00') {
-                $transaction = new Transaction();
-                $transaction->user_id = Auth::id();
-                $transaction->recipient_rib = $recipientRib;
-                $transaction->amountsansfrais = $amountsansfrais;
-                $transaction->amountavecfrais = $amountavecfrais;
-                $transaction->status = 'completed';
-                $transaction->save();
+            $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+            $output->writeln("<info>$preAuthResponse->Response</info>");
 
+            $output->writeln("<info>$postAuthResponse</info>");
+        $transaction = Transaction::create([
+            'user_id' => $userid, 
+            'recipient_rib' => $recipientRib,
+            'amountsansfrais' => $amountsansfrais,
+            'amountavecfrais' => $amountavecfrais,
+            'status' => 'completed',
+
+        ]);
+              
                 return response()->json(['status' => 'success', 'message' => 'Payment completed successfully']);
-            } else {
-                return response()->json(['status' => 'error', 'message' => 'Post-auth failed']);
-            }
-        } else {
-            return response()->json(['status' => 'error', 'message' => 'Pre-auth failed']);
-        }
+          
+       
     }
 
     private function sendPaymentRequest($type, $amount, $cardNumber, $cardExpiry, $cvv)
@@ -162,7 +161,7 @@ public function scanQrCode(Request $request)
         $xml->addChild('ClientId', $this->clientId);
         $xml->addChild('Type', $type);
         $xml->addChild('Total', $amount);
-        $xml->addChild('Currency', '504');
+        $xml->addChild('Currency', '504'); // Example for Moroccan Dirham
         $xml->addChild('Number', $cardNumber);
         $xml->addChild('Expires', $cardExpiry);
         $xml->addChild('Cvv2Val', $cvv);
@@ -198,11 +197,17 @@ public function scanQrCode(Request $request)
         return new SimpleXMLElement($response->getBody()->getContents());
     }
 
+
     // récupérer l'historique des transactions
-    public function transactionHistory(Request $request)
+    public function transactionHistory($iduser)
     {
-        $userId = Auth::id();
-        $transactions = Transaction::where('user_id', $userId)->orWhere('recipient_id', $userId)->get();
+        $user = User::find($iduser);
+    
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+    
+        $transactions = $user->transactions;
 
         return response()->json($transactions);
     }

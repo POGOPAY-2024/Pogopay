@@ -1,20 +1,65 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Dimensions, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const TransactionsHistory = () => {
-  // Dummy data for illustration
-  const transactions = [
-    { id: '1', type: 'Purchase', date: 'May 1, 2024', amount: '$25.00' },
-    { id: '2', type: 'Deposit', date: 'April 28, 2024', amount: '$50.00' },
-    { id: '3', type: 'Withdrawal', date: 'April 25, 2024', amount: '$30.00' },
-    { id: '4', type: 'Purchase', date: 'April 20, 2024', amount: '$15.00' },
-    { id: '5', type: 'Deposit', date: 'April 18, 2024', amount: '$100.00' },
-    { id: '6', type: 'Purchase', date: 'May 1, 2024', amount: '$25.00' },
-    { id: '7', type: 'Deposit', date: 'April 28, 2024', amount: '$50.00' },
-    { id: '8', type: 'Withdrawal', date: 'April 25, 2024', amount: '$30.00' },
-    { id: '9', type: 'Purchase', date: 'April 20, 2024', amount: '$15.00' },
-  ];
+  const [transactions, setTransactions] = useState([]);
+  const [token, setToken] = useState('');
+
+  useEffect(() => {
+    fetchToken();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserAndData();
+    }, [token])
+  );
+
+  const fetchToken = async () => {
+    try {
+      const tk = await AsyncStorage.getItem('userToken');
+      setToken(tk);
+    } catch (error) {
+      console.error('Error fetching token:', error.message);
+      Alert.alert('Error', 'Failed to fetch token. Please try again.');
+    }
+  };
+
+  const fetchUserAndData = async () => {
+    try {
+      const userDataJson = await AsyncStorage.getItem('userData');
+      if (userDataJson !== null) {
+        const user = JSON.parse(userDataJson);
+        await fetchTransactionData(user.id);
+      } else {
+        console.log('userData is null');
+      }
+    } catch (error) {
+      console.error('Error fetching user and data:', error.message);
+      Alert.alert('Error', 'Failed to fetch data. Please try again.');
+    }
+  };
+
+  const fetchTransactionData = async (userId) => {
+    try {
+      const response = await axios.get(`http://192.168.1.131:8000/api/transaction-history/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setTransactions(response.data);
+      } else {
+        console.error('Error fetching transaction data:', response.data);
+        Alert.alert('Error', 'Failed to fetch transaction data');
+      }
+    } catch (error) {
+      console.error('Error fetching transaction data:', error.message);
+      Alert.alert('Error', 'Failed to fetch transaction data');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -24,13 +69,12 @@ const TransactionsHistory = () => {
           <View style={styles.card}>
             <FontAwesome name="exchange" size={Dimensions.get('window').width * 0.05} color="#FB847C" style={styles.icon} />
             <View style={styles.transactionDetails}>
-              <Text style={styles.transactionType}>{item.type}</Text>
-              <Text style={styles.transactionDate}>{item.date}</Text>
+              <Text style={styles.transactionDate}>{new Date(item.created_at).toLocaleDateString()}</Text>
             </View>
-            <Text style={styles.transactionAmount}>{item.amount}</Text>
+            <Text style={styles.transactionAmount}>{`${item.amountsansfrais} dh`}</Text>
           </View>
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );
@@ -57,11 +101,6 @@ const styles = StyleSheet.create({
   transactionDetails: {
     flex: 1,
     marginRight: Dimensions.get('window').width * 0.03,
-  },
-  transactionType: {
-    fontSize: Dimensions.get('window').width * 0.04,
-    fontWeight: 'bold',
-    marginBottom: Dimensions.get('window').width * 0.012,
   },
   transactionDate: {
     fontSize: Dimensions.get('window').width * 0.035,
