@@ -93,6 +93,10 @@ public function scanQrCode(Request $request)
 {
     $qrData = json_decode($request->input('qr_data'), true);
 
+    if (!$qrData) {
+        return response()->json(['error' => 'Invalid QR data'], 400);
+    }
+
     $recipientRib = $qrData['rib'] ?? null;
     $accountName = $qrData['accountName'] ?? null;
 
@@ -103,21 +107,24 @@ public function scanQrCode(Request $request)
     }
 }
 
+
     // Process payment via CMI API
     public function processPayment(Request $request)
     {
         $validatedData = $request->validate([
             'amountsansfrais' => 'required|numeric',
             'amountavecfrais' => 'required|numeric',
-            'recipient_rib' => 'required|string',
+            'recipient_rib' => 'required',
+            'card_id' => 'required|integer',
         ]);
 
         $amountsansfrais = $validatedData['amountsansfrais'];
         $amountavecfrais = $validatedData['amountavecfrais'];
         $recipientRib = $validatedData['recipient_rib'];
+        $cardId = $validatedData['card_id'];
 
         $user = Auth::user();
-        $card = Card::where('user_id', $user->id)->first(); 
+        $card = Card::where('id', $cardId);
 
         if (!$card) {
             return response()->json(['status' => 'error', 'message' => 'No card found for user'], 400);

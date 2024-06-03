@@ -21,14 +21,25 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/add-card', [PaymentController::class, 'addCard']);
 Route::get('/get-cards/{id}', [PaymentController::class, 'getCards']); 
+<<<<<<< HEAD
 Route::get('/generate-qr-code/{id}', [PaymentController::class, 'generateQrCode']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/scan-qr-code', [PaymentController::class, 'scanQrCode']);
     Route::post('/process-payment', [PaymentController::class, 'processPayment']);
-    Route::get('/transaction-history', [PaymentController::class, 'transactionHistory']);
-    Route::get('/profile', [PaymentController::class, 'getProfile']);
+=======
+Route::post('/passwordverif/{id}', [AuthController::class, 'passwordverif']);
+Route::post('/process-payment', [PaymentController::class, 'processPayment']);
+Route::get('/getCardsselct/{id}', [AuthController::class, 'getCardsselct']); 
+Route::post('/scan-qr-code', [PaymentController::class, 'scanQrCode']);
+
+Route::get('/profile', [PaymentController::class, 'getProfile']);
     Route::put('/profile', [PaymentController::class, 'updateProfile']);
+
+Route::middleware('auth:sanctum')->group(function () {
+>>>>>>> 0d7c3b3 (commit)
+    Route::get('/transaction-history', [PaymentController::class, 'transactionHistory']);
+    
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/token', [AuthController::class, 'createToken'])->middleware('auth:sanctum');
 

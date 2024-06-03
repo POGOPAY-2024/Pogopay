@@ -1,31 +1,70 @@
 import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function Confirmation({ route, navigation }) {
   const { qrData, amount, paymentMethod } = route.params;
+<<<<<<< HEAD
+=======
+  const [fee, setFee] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(amount);
 
-  const handleConfirm = () => {
-    Alert.alert(
-      "Confirm Transfer",
-      "Are you sure you want to confirm this transfer?",
-      [
+  useEffect(() => {
+    const calculateFee = () => {
+      const calculatedFee = amount * 0.05;
+      setFee(calculatedFee);
+      setTotalAmount(Number(amount) + Number(calculatedFee));
+    
+    };
+    calculateFee();
+   
+
+  }, [amount]);
+>>>>>>> 0d7c3b3 (commit)
+
+  const handleConfirm = async () => {
+    try {
+      const userDataJson = await AsyncStorage.getItem('userData');
+      const tk = await AsyncStorage.getItem('userToken');
+      const user = JSON.parse(userDataJson);
+      
+      const response = await axios.post(
+        'http://192.168.1.129:8000/api/process-payment',
         {
-          text: "Cancel",
-          style: "cancel"
+          amountsansfrais: amount,
+          amountavecfrais: totalAmount,
+          recipient_rib: qrData,
+          card_id: paymentMethod.id,
         },
-        { text: "Confirm", onPress: () => navigation.navigate('Home') }
-      ]
-    );
+        { headers: { Authorization: `Bearer ${tk}` } }
+      );
+
+      if (response.data.status === 'success') {
+        Alert.alert('Success', 'Payment completed successfully.', [
+          { text: 'OK', onPress: () => navigation.navigate('Home') },
+        ]);
+      } else {
+        Alert.alert('Error', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error.message);
+      Alert.alert('Error', 'Failed to process payment.');
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Transfer Confirmation</Text>
+<<<<<<< HEAD
         <View style={styles.detail}>
           <Text style={styles.label}>Transferred Data:</Text>
           <Text style={styles.value}>{qrData}</Text>
         </View>
+=======
+      
+>>>>>>> 0d7c3b3 (commit)
         <View style={styles.detail}>
           <Text style={styles.label}>Amount:</Text>
           <Text style={styles.value}>{amount}</Text>
@@ -69,13 +108,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   detail: {
-    alignItems: 'center', 
+    alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: height * 0.01,
     paddingHorizontal: width * 0.03,
     borderColor: '#ddd',
     borderBottomWidth: 1,
-    paddingBottom: height * 0.015, 
+    paddingBottom: height * 0.015,
   },
   label: {
     fontSize: width * 0.045,

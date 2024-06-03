@@ -32,7 +32,11 @@ const CreditCard = () => {
 
   const fetchCardData = async (userId, token) => {
     try {
+<<<<<<< HEAD
       const response = await axios.get(`http://192.168.1.125:8000/api/get-cards/${userId}`, {
+=======
+      const response = await axios.get(`http://192.168.1.129:8000/api/get-cards/${userId}`, {
+>>>>>>> 0d7c3b3 (commit)
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200) {

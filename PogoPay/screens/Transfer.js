@@ -1,22 +1,64 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, Button, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 
 export default function Transfer({ route, navigation }) {
   const { qrData } = route.params;
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [cards, setCards] = useState([]);
+  
+  const [token, setToken] = useState('');
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+    fetchUserAndData();
+    console.log('transfet',qrData);
+  }, []);
+
+  const fetchUserAndData = async () => {
+    try {
+      const userDataJson = await AsyncStorage.getItem('userData');
+      const tk = await AsyncStorage.getItem('userToken');
+      setToken(tk);
+      if (userDataJson !== null) {
+        const user = JSON.parse(userDataJson);
+        setUser(user);
+        await fetchUserCards(user.id, tk);  // Ensure await is used to wait for fetchUserCards to complete
+      } else {
+        console.log('userData is null');
+      }
+    } catch (error) {
+      console.error('Error fetching user and data:', error.message);
+      Alert.alert('Error', 'Failed to fetch data. Please try again.');
+    }
+  };
+
+  const fetchUserCards = async (userId, token) => {
+    try {
+      const response = await axios.get(`http://192.168.1.129:8000/api/getCardsselct/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.status === 200) {
+        setCards(response.data.cards);
+        console.log('Cards fetched:', response.data.cards);
+      } else {
+        console.error('Error fetching cards:', response.data);
+        Alert.alert('Error', 'Failed to fetch cards.');
+      }
+    } catch (error) {
+      console.error('Error fetching cards:', error.message);
+      Alert.alert('Error', 'Failed to fetch cards.');
+    }
+  };
 
   const handleTransfer = () => {
-    if (!paymentMethod) {
-      // Set the default payment method (active card)
-      setPaymentMethod("Default Card");
-    }
-
-    if (amount) {
+    if (amount && paymentMethod) {
       navigation.navigate('Confirm', { qrData, amount, paymentMethod });
     } else {
-      Alert.alert('Error', 'Please enter the amount.', [{ text: 'OK' }]);
+      Alert.alert('Error', 'Please enter the amount and select a payment method.', [{ text: 'OK' }]);
     }
   };
 
@@ -24,6 +66,7 @@ export default function Transfer({ route, navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Transfer Money</Text>
       <Text style={styles.subtitle}>Please enter the amount and select the payment method.</Text>
+
       <Image style={styles.image} source={require('../assets/transfer1.png')} />
 
       <TextInput
@@ -40,11 +83,12 @@ export default function Transfer({ route, navigation }) {
           onValueChange={(itemValue) => setPaymentMethod(itemValue)}
         >
           <Picker.Item label="Select payment method" value="" />
-          <Picker.Item label="Default Card" value="Default Card" />
-          <Picker.Item label="Credit Card" value="Credit Card" />
-          <Picker.Item label="Bank Transfer" value="Bank Transfer" />
+          {cards.map((card, index) => (
+            <Picker.Item key={index} label={`Card: ${card.card_number}`} value={card.id} />
+          ))}
         </Picker>
       </View>
+
       <TouchableOpacity style={styles.button} onPress={handleTransfer}>
         <Text style={styles.buttonText}>Transfer</Text>
       </TouchableOpacity>

@@ -38,9 +38,15 @@ const AddCard = () => {
         Alert.alert('Error', 'Please fill in all fields');
         return;
       }
+<<<<<<< HEAD
   
       const response = await axios.post('http://192.168.1.124:8000/api/add-card', {
         user_id: user.id, 
+=======
+
+      const response = await axios.post('http://192.168.1.129:8000/api/add-card', {
+        user_id: user.id,
+>>>>>>> 0d7c3b3 (commit)
         card_number: cardNumber,
         expiry_date: expirationDate,
         cvv: cvv,

@@ -1,15 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function Password({ route, navigation }) {
-  const { qrData } = route.params; // Receive qrData from route params
+  const { qrData } = route.params;
   const [password, setPassword] = useState('');
+  const [user, setUser] = useState({});
+  const [token, setToken] = useState('');
+  useEffect(() => {
+    fetchUserAndData();
 
-  const handlePasswordSubmit = () => {
-    if (password === '0000') {
-      navigation.navigate('Transfer', { qrData }); // Pass qrData to the next screen
-    } else {
-      Alert.alert('Incorrect Password', 'Please try again.', [{ text: 'OK' }]);
+  }, []);
+
+  const fetchUserAndData = async () => {
+    try {
+      const userDataJson = await AsyncStorage.getItem('userData');
+      const tk = await AsyncStorage.getItem('userToken');
+      setToken(tk);
+      if (userDataJson !== null) {
+        const user = JSON.parse(userDataJson);
+        setUser(user);
+      } else {
+        console.log('userData is null');
+      }
+    } catch (error) {
+      console.error('Error fetching user and data:', error.message);
+      Alert.alert('Error', 'Failed to fetch data. Please try again.');
+    }
+  };
+
+  const handlePasswordSubmit = async () => {
+    try {
+      const response = await axios.post(
+        `http://192.168.1.129:8000/api/passwordverif/${user.id}`,
+        { password },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        navigation.navigate('Transfer', { qrData });
+      } else {
+        console.error('Error:', response.data);
+        Alert.alert('Error', 'Failed to verify password.');
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+      Alert.alert('Error', 'Failed to verify password.');
     }
   };
 

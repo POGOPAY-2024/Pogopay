@@ -91,4 +91,38 @@ class AuthController extends Controller
         $token = $request->user()->createToken('auth_token')->plainTextToken;
         return response()->json(['token' => $token], 200);
     }
+
+    public function passwordverif(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if (Hash::check($request->password, $user->password)) {
+            return response()->json(['success' => true], 200);
+        } else {
+            return response()->json(['error' => 'Invalid password'], 400);
+        }
+    }
+      
+    public function getCardsselct($iduser)
+    {
+        $user = User::find($iduser);
+    
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+    
+        $cards = $user->cards;
+    
+        return response()->json(['cards' => $cards]);
+    }
+    
+
 }
