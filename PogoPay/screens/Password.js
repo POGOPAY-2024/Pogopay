@@ -33,7 +33,7 @@ export default function Password({ route, navigation }) {
   const handlePasswordSubmit = async () => {
     try {
       const response = await axios.post(
-        `http://192.168.1.131:8001/api/passwordverif/${user.id}`,
+        `http://192.168.1.139:8000/api/passwordverif/${user.id}`,
         { password },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -11,12 +11,11 @@ const HomeScreen = ({navigation}) => {
 
 
    const [cards, setCards] = useState([
-    { id: '1', card_number: '1234 5678 9012 3456', expiry_date: '12/24', cvv: '123' },
+    { id: '1', card_number: 	
+    '9876 0197 5067 3560', expiry_date: '12/25', cvv: '000' },
   ]);
 
-  const handleDeleteCard = (id) => {
-    setCards(cards.filter((card) => card.id !== id));
-  };
+  
 
   const handleForgotInPress = () => {
     navigation.navigate('CodeQr');
@@ -39,9 +38,7 @@ const HomeScreen = ({navigation}) => {
               <Text style={styles.cardInfo}>Expires: {card.expiry_date}</Text>
               <Text style={styles.cardInfo}>CVV: {card.cvv}</Text>
             </View>
-            <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDeleteCard(card.id)}>
-              <FontAwesomeIcon icon={faTrash} size={24} color="red" />
-            </TouchableOpacity>
+         
           </View>
         ))}
       </ScrollView>

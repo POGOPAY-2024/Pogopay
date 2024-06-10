@@ -14,13 +14,163 @@ use App\Models\User;
 use App\Models\Card; 
 use Illuminate\Support\Facades\Auth;
 
+
 class PaymentController extends Controller
 {
     private $apiName = 'pogo_api';
     private $apiPassword = 'Pogo_api2022';
     private $clientId = '600003404';
     private $cmiApiUrl = 'https://testpayment.cmi.co.ma/fim/api';
+
+    public function processPayment(Request $request)
+{
+    Log::info('Process payment started');
+
+    $validator = Validator::make($request->all(), [
+        'amountsansfrais' => 'required|numeric|min:0.01',
+        'amountavecfrais' => 'required|numeric|min:0.01',
+        'recipient_rib' => 'required',
+        'card_id' => 'required',
+        'user_id' => 'required',
+    ]);
+
+    if ($validator->fails()) {
+        Log::error('Validation failed', ['errors' => $validator->errors()]);
+        return response()->json(['status' => 'error', 'message' => $validator->errors()], 422);
+    }
+
+    $validatedData = $validator->validated();
+    $amountsansfrais = $validatedData['amountsansfrais'];
+    $amountavecfrais = $validatedData['amountavecfrais'];
+    $recipientRib = $validatedData['recipient_rib'];
+    $cardId = $validatedData['card_id'];
+    $userId = $validatedData['user_id'];
+
+    $card = Card::find($cardId);
+
+    if (!$card) {
+        Log::error('No card found for user', ['card_id' => $cardId]);
+        return response()->json(['status' => 'error', 'message' => 'No card found for user'], 400);
+    }
+
+    try {
+        $expiryDate = $this->formatExpiryDate($card->expiry_date);
+        if (!$expiryDate) {
+            Log::error('Invalid card expiry date format', ['expiry_date' => $card->expiry_date]);
+            return response()->json(['status' => 'error', 'message' => 'Invalid card expiry date format'], 400);
+        }
+
+        $preAuthResponse = $this->sendPaymentRequest('PreAuth', $amountavecfrais, $card->card_number, $expiryDate, $card->cvv);
+        Log::info('PreAuth Response', ['response' => (array)$preAuthResponse]);
+
+        if ((string)$preAuthResponse->Response != 'Approved') {
+            Log::error('Pre-authorization failed', ['response' => (array)$preAuthResponse]);
+            return response()->json(['status' => 'error', 'message' => 'Pre-authorization failed'], 400);
+        }
+
+        $orderId = (string)$preAuthResponse->OrderId;
+        $postAuthResponse = $this->sendPostAuthRequest($orderId);
+        Log::info('PostAuth Response', ['response' => (array)$postAuthResponse]);
+
+        if ((string)$postAuthResponse->Response != 'Approved') {
+            Log::error('Payment not approved', ['response' => (array)$postAuthResponse]);
+            return response()->json(['status' => 'error', 'message' => 'Post-authorization failed'], 400);
+        }
+
+        $transaction = Transaction::create([
+            'user_id' => $userId,
+            'recipient_rib' => $recipientRib,
+            'amountsansfrais' => $amountsansfrais,
+            'amountavecfrais' => $amountavecfrais,
+            'status' => 'completed',
+        ]);
+
+        return response()->json(['status' => 'success', 'message' => 'Payment processed successfully', 'transaction' => $transaction]);
+    } catch (\Exception $e) {
+        Log::error('Error processing payment', ['exception' => $e->getMessage()]);
+        return response()->json(['status' => 'error', 'message' => 'Failed to process payment.'], 500);
+    }
+}
+
+private function formatExpiryDate($expiryDate)
+{
+    if (preg_match('/^\d{2}\/\d{2}$/', $expiryDate)) {
+        return str_replace('/', '', $expiryDate); 
+    } elseif (preg_match('/^\d{2}\/\d{4}$/', $expiryDate)) {
+        return substr(str_replace('/', '', $expiryDate), 0, 4); 
+    }
+    return false; 
+}
+
+
+    private function sendPaymentRequest($type, $amount, $cardNumber, $cardExpiry, $cvv)
+    {
+        try {
+            $xml = new SimpleXMLElement('<CC5Request/>');
+            $xml->addChild('Name', $this->apiName);
+            $xml->addChild('Password', $this->apiPassword);
+            $xml->addChild('ClientId', $this->clientId);
+            $xml->addChild('Type', $type);
+            $xml->addChild('Total', '1');
+            $xml->addChild('Currency', '504'); 
+            $xml->addChild('Number', '9876019750673560');
+            $xml->addChild('Expires', '12/25');
+            $xml->addChild('Cvv2Val', '000');
+
+            $client = new Client();
+            $response = $client->post($this->cmiApiUrl, [
+                'body' => $xml->asXML(),
+                'headers' => [
+                    'Content-Type' => 'application/xml'
+                ]
+            ]);
+
+            return new SimpleXMLElement($response->getBody()->getContents());
+        } catch (\Exception $e) {
+            Log::error('Error sending payment request', ['exception' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    private function sendPostAuthRequest($orderId)
+    {
+        try {
+            $xml = new SimpleXMLElement('<CC5Request/>');
+            $xml->addChild('Name', $this->apiName);
+            $xml->addChild('Password', $this->apiPassword);
+            $xml->addChild('ClientId', $this->clientId);
+            $xml->addChild('Type', 'PostAuth');
+            $xml->addChild('OrderId', $orderId);
+
+            $client = new Client();
+            $response = $client->post($this->cmiApiUrl, [
+                'body' => $xml->asXML(),
+                'headers' => [
+                    'Content-Type' => 'application/xml'
+                ]
+            ]);
+
+            return new SimpleXMLElement($response->getBody()->getContents());
+        } catch (\Exception $e) {
+            Log::error('Error sending post auth request', ['exception' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+ 
     
+ /*
+ $transaction = Transaction::create([
+    'user_id' => $userid, 
+    'recipient_rib' => $recipientRib,
+    'amountsansfrais' => $amountsansfrais,
+    'amountavecfrais' => $amountavecfrais,
+    'status' => 'completed',
+
+]);*/
+
+
+
+    //add card
     public function addCard(Request $request)
     {
         $header = $request->header('Authorization');
@@ -78,6 +228,21 @@ $output->writeln("<info>$var</info>");
 
         return response($qrCode->writeString(), 200)->header('Content-Type', 'image/png');
     }
+    // In PaymentController.php
+
+public function deleteCard($id)
+{
+    $card = Card::find($id);
+
+    if (!$card) {
+        return response()->json(['error' => 'Card not found'], 404);
+    }
+
+    $card->delete();
+
+    return response()->json(['message' => 'Card deleted successfully'], 200);
+}
+
 
     //   traiter le QR code scanné
 public function scanQrCode(Request $request)
@@ -98,100 +263,7 @@ public function scanQrCode(Request $request)
     }
 }
 
-    // Process payment via CMI API
-    public function processPayment(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'amountsansfrais' => 'required|numeric|min:0.01',
-            'amountavecfrais' => 'required|numeric|min:0.01',
-            'recipient_rib' => 'required',
-            'card_id' => 'required',
-            'user_id' => 'required',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'message' => $validator->errors()], 422);
-        }
-       
-        $validatedData = $validator->validated();
-        $amountsansfrais = $validatedData['amountsansfrais'];
-        $amountavecfrais = $validatedData['amountavecfrais'];
-        $recipientRib = $validatedData['recipient_rib'];
-        $cardId = $validatedData['card_id'];
-        $userid = $validatedData['user_id'];
-
-        $card = Card::find($cardId);
-
-        if (!$card) {
-            return response()->json(['status' => 'error', 'message' => 'No card found for user'], 400);
-        }
-
-        $preAuthResponse = $this->sendPaymentRequest('PreAuth', $amountavecfrais, $card->card_number, $card->expiry_date, $card->cvv);
-
-            $orderId = $preAuthResponse->OrderId;
-            $postAuthResponse = $this->sendPostAuthRequest($orderId);
-
-            $output = new \Symfony\Component\Console\Output\ConsoleOutput();
-            $output->writeln("<info>$preAuthResponse->Response</info>");
-
-            //$output->writeln("<info>$postAuthResponse</info>");
-        $transaction = Transaction::create([
-            'user_id' => $userid, 
-            'recipient_rib' => $recipientRib,
-            'amountsansfrais' => $amountsansfrais,
-            'amountavecfrais' => $amountavecfrais,
-            'status' => 'completed',
-
-        ]);
-              
-                return response()->json(['status' => 'success', 'message' => 'Payment completed successfully']);
-          
-       
-    }
-
-    private function sendPaymentRequest($type, $amount, $cardNumber, $cardExpiry, $cvv)
-    {
-        $xml = new SimpleXMLElement('<CC5Request/>');
-        $xml->addChild('Name', $this->apiName);
-        $xml->addChild('Password', $this->apiPassword);
-        $xml->addChild('ClientId', $this->clientId);
-        $xml->addChild('Type', $type);
-        $xml->addChild('Total', $amount);
-        $xml->addChild('Currency', '504'); // Example for Moroccan Dirham
-        $xml->addChild('Number', $cardNumber);
-        $xml->addChild('Expires', $cardExpiry);
-        $xml->addChild('Cvv2Val', $cvv);
-
-        $client = new Client();
-        $response = $client->post($this->cmiApiUrl, [
-            'body' => $xml->asXML(),
-            'headers' => [
-                'Content-Type' => 'application/xml'
-            ]
-        ]);
-
-        return new SimpleXMLElement($response->getBody()->getContents());
-    }
-
-    private function sendPostAuthRequest($orderId)
-    {
-        $xml = new SimpleXMLElement('<CC5Request/>');
-        $xml->addChild('Name', $this->apiName);
-        $xml->addChild('Password', $this->apiPassword);
-        $xml->addChild('ClientId', $this->clientId);
-        $xml->addChild('Type', 'PostAuth');
-        $xml->addChild('OrderId', $orderId);
-
-        $client = new Client();
-        $response = $client->post($this->cmiApiUrl, [
-            'body' => $xml->asXML(),
-            'headers' => [
-                'Content-Type' => 'application/xml'
-            ]
-        ]);
-
-        return new SimpleXMLElement($response->getBody()->getContents());
-    }
+   
 
 
     // récupérer l'historique des transactions

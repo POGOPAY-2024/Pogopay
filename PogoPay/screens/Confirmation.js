@@ -38,7 +38,7 @@ export default function Confirmation({ route, navigation }) {
   const handleConfirm = async () => {
     try {
       const response = await axios.post(
-        'http://192.168.1.131:8001/api/process-payment',
+        'http://192.168.1.139:8000/api/process-payment',
         {
           amountsansfrais: amount,
           amountavecfrais: totalAmount,

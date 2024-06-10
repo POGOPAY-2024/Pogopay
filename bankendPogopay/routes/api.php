@@ -26,6 +26,8 @@ Route::post('/process-payment', [PaymentController::class, 'processPayment']);
 Route::get('/getCardsselct/{id}', [AuthController::class, 'getCardsselct']); 
 Route::post('/scan-qr-code', [PaymentController::class, 'scanQrCode']);
 
+Route::delete('/delete-card/{id}', [PaymentController::class, 'deleteCard']);
+
 Route::get('/profile', [PaymentController::class, 'getProfile']);
     Route::put('/profile', [PaymentController::class, 'updateProfile']);
     Route::get('/transaction-history/{id}', [PaymentController::class, 'transactionHistory']);

@@ -38,7 +38,7 @@ export default function Transfer({ route, navigation }) {
 
   const fetchUserCards = async (userId, token) => {
     try {
-      const response = await axios.get(`http://192.168.1.131:8001/api/getCardsselct/${userId}`, {
+      const response = await axios.get(`192.168.1.139:8001/api/getCardsselct/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200) {
@@ -55,11 +55,8 @@ export default function Transfer({ route, navigation }) {
   };
 
   const handleTransfer = () => {
-    if (amount && paymentMethod) {
       navigation.navigate('Confirm', { qrData, amount, paymentMethod });
-    } else {
-      Alert.alert('Error', 'Please enter the amount and select a payment method.', [{ text: 'OK' }]);
-    }
+   
   };
 
   return (
