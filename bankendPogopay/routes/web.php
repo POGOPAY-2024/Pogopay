@@ -12,9 +12,14 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+use App\Http\Controllers\AdminController;
 
-Route::get('/', function () {
-    return ['Laravel' => app()->version()];
+
+Route::middleware(['web'])->group(function () {
+    Route::get('dashboard', [AdminController::class, 'showDashboard'])->name('dashboard');
+    Route::delete('/delete/{id}', [AdminController::class, 'destroy'])->name('destroy');
+    Route::get('/transactions/{id}', [AdminController::class, 'getTransaction'])->name('transactions.show');
 });
 
+ 
 require __DIR__.'/auth.php';
