@@ -15,11 +15,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 
 
-Route::middleware(['web'])->group(function () {
+    Route::view("/login","login")->name("showLogin");
+
+    Route::post("/login",[\App\Http\Controllers\AdminController::class,"login"])->name("login");
+    Route::get("/logout",[\App\Http\Controllers\AdminController::class,"logout"])->name("logout");
+
     Route::get('dashboard', [AdminController::class, 'showDashboard'])->name('dashboard');
     Route::delete('/delete/{id}', [AdminController::class, 'destroy'])->name('destroy');
     Route::get('/transactions/{id}', [AdminController::class, 'getTransaction'])->name('transactions.show');
-});
+    Route::get('/users', [AdminController::class, 'showUsers'])->name('users'); 
+
 
  
 require __DIR__.'/auth.php';
