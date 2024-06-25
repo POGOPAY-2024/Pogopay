@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 use App\Http\Controllers\AdminController;
 
-
+Route::get('/', function () {
+    return redirect()->route('showLogin');
+});
     Route::view("/login","login")->name("showLogin");
 
     Route::post("/login",[\App\Http\Controllers\AdminController::class,"login"])->name("login");

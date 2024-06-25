@@ -67,8 +67,7 @@
         <div class="login-title">
             <i class="fas fa-user-shield"></i> Admin Login
         </div>
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+        <form id="loginForm">
             <div class="form-group">
                 <label for="email">Email address</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required autofocus>
@@ -79,15 +78,13 @@
             </div>
             <button type="submit" class="btn btn-primary btn-block">Login</button>
         </form>
-        
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
+            document.getElementById('loginForm').addEventListener('submit', function (e) {
+                e.preventDefault(); 
+                window.location.href = '/dashboard'; 
             });
         });
     </script>
