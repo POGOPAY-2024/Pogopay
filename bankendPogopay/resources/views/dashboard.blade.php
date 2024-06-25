@@ -79,5 +79,9 @@
                 })
                 .catch(error => console.error('Error fetching transaction details:', error));
         }
+        document.getElementById('logoutButton').addEventListener('click', function () {
+           
+            window.location.href = '/login';
+        });
     </script>
 @endsection
